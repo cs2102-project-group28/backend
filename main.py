@@ -1,11 +1,13 @@
 from flask import Flask
+import database as db
 
 app = Flask(__name__)
 
 
 @app.route('/')
-def hello_world():
-    return 'Hello, World!'
+def main():
+    connection, cursor = db.init()
+    return ''
 
 
 if __name__ == '__main__':
