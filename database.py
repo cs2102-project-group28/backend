@@ -1,14 +1,20 @@
 import psycopg2
 from password import password
 
-try:
+
+def init():
+    global connection
     connection = psycopg2.connect(user="postgres",
                                   password=password,
                                   host="localhost",
                                   port="5432",
-                                  database="assign3")
+                                  database="pizza")
+
+
+try:
+    init()
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM information_schema.tables;")
+    cursor.execute("SELECT * FROM pizzas;")
     query = cursor.fetchall()
     print(query)
 except (Exception, psycopg2.Error) as error:
