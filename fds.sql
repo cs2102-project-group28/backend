@@ -3,7 +3,6 @@ DROP TABLE IF EXISTS Managers CASCADE;
 DROP TABLE IF EXISTS Riders CASCADE;
 DROP TABLE IF EXISTS Customers CASCADE;
 DROP TABLE IF EXISTS Staffs CASCADE;
-DROP TABLE IF EXISTS Works CASCADE;
 DROP TABLE IF EXISTS Schedules CASCADE;
 DROP TABLE IF EXISTS Delivers CASCADE;
 DROP TABLE IF EXISTS Orders CASCADE;
@@ -16,6 +15,11 @@ DROP TABLE IF EXISTS Manages CASCADE;
 DROP TABLE IF EXISTS Reviews CASCADE;
 DROP TABLE IF EXISTS Percentage CASCADE;
 DROP TABLE IF EXISTS Flat CASCADE;
+DROP TABLE IF EXISTS PartTimeRiders CASCADE;
+DROP TABLE IF EXISTS FullTimeRiders CASCADE;
+DROP TABLE IF EXISTS WeeklyWorks CASCADE;
+DROP TABLE IF EXISTS MonthlyWorks CASCADE;
+
 
 CREATE TABLE Users (
 	username			VARCHAR(32),
@@ -39,6 +43,7 @@ CREATE TABLE Staffs (
 
 CREATE TABLE Riders (
 	username			VARCHAR(32),
+	salary				INTEGER,
 	PRIMARY KEY (username),
 	FOREIGN KEY (username) REFERENCES Users
 );
@@ -54,11 +59,12 @@ CREATE TABLE Customers (
 
 CREATE TABLE Schedules (
 	sid 				INTEGER,
-	startTime 			TIMESTAMP NOT NULL CHECK (EXTRACT(MINUTE FROM endTime) = 0),
-	endTime 			TIMESTAMP NOT NULL CHECK (EXTRACT(MINUTE FROM endTime) = 0),
+	startTime 			TIME (0) NOT NULL CHECK (EXTRACT(MINUTE FROM endTime) = 0),
+	endTime 			TIME (0) NOT NULL CHECK (EXTRACT(MINUTE FROM endTime) = 0),
+	dayOfWeek			INTEGER,
 	PRIMARY KEY (sid),
-	UNIQUE (startTime, endTime),
-	CHECK (EXTRACT(HOUR FROM endTime) - EXTRACT(HOUR FROM startTime) < 5)
+	UNIQUE (startTime, endTime, dayOfWeek),
+	CHECK (EXTRACT(HOUR FROM endTime) - EXTRACT(HOUR FROM startTime) < 5 AND 0 < dayOfWeek AND dayOfWeek < 8)
 );
 
 CREATE TABLE Restaurants (
@@ -68,14 +74,6 @@ CREATE TABLE Restaurants (
 	location			TEXT NOT NULL,
 	minSpent 			FLOAT,
 	PRIMARY KEY (rid)
-);
-
-CREATE TABLE Works (
-	username			VARCHAR(32),
-	sid 				INTEGER,
-	PRIMARY KEY (username, sid),
-	FOREIGN KEY (username) REFERENCES Riders,
-	FOREIGN KEY (sid) REFERENCES Schedules
 );
 
 CREATE TABLE FoodItems (
@@ -169,5 +167,36 @@ CREATE TABLE Reviews (
 	FOREIGN KEY (rid) REFERENCES Restaurants,
 	FOREIGN KEY (fid) REFERENCES FoodItems
 );
-	
+
+CREATE TABLE PartTimeRiders (
+	username		VARCHAR(32),
+	PRIMARY KEY (username),
+	FOREIGN KEY (username) REFERENCES Riders
+);
+
+
+CREATE TABLE FullTimeRiders (
+	username		VARCHAR(32),
+	PRIMARY KEY (username),
+	FOREIGN KEY (username) REFERENCES Riders
+);
+
+
+CREATE TABLE WeeklyWorks (
+username		VARCHAR(32),
+sid 			INTEGER,
+PRIMARY KEY (username, sid),
+FOREIGN KEY (username) REFERENCES PartTimeRiders,
+FOREIGN KEY (sid) REFERENCES Schedules
+);
+
+
+CREATE TABLE MonthlyWorks (
+username		VARCHAR(32),
+sid 			INTEGER,
+PRIMARY KEY (username, sid),
+FOREIGN KEY (username) REFERENCES FullTimeRiders,
+FOREIGN KEY (sid) REFERENCES Schedules
+);
+
 
