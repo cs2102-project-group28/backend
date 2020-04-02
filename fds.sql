@@ -169,34 +169,69 @@ CREATE TABLE Reviews (
 );
 
 CREATE TABLE PartTimeRiders (
-	username		VARCHAR(32),
+	username			VARCHAR(32),
 	PRIMARY KEY (username),
 	FOREIGN KEY (username) REFERENCES Riders
 );
 
 
 CREATE TABLE FullTimeRiders (
-	username		VARCHAR(32),
+	username			VARCHAR(32),
 	PRIMARY KEY (username),
 	FOREIGN KEY (username) REFERENCES Riders
 );
 
 
 CREATE TABLE WeeklyWorks (
-username		VARCHAR(32),
-sid 			INTEGER,
-PRIMARY KEY (username, sid),
-FOREIGN KEY (username) REFERENCES PartTimeRiders,
-FOREIGN KEY (sid) REFERENCES Schedules
+	username			VARCHAR(32),
+	sid 				INTEGER,
+	PRIMARY KEY (username, sid),
+	FOREIGN KEY (username) REFERENCES PartTimeRiders,
+	FOREIGN KEY (sid) REFERENCES Schedules
 );
 
 
 CREATE TABLE MonthlyWorks (
-username		VARCHAR(32),
-sid 			INTEGER,
-PRIMARY KEY (username, sid),
-FOREIGN KEY (username) REFERENCES FullTimeRiders,
-FOREIGN KEY (sid) REFERENCES Schedules
+	username			VARCHAR(32),
+	sid 				INTEGER,
+	PRIMARY KEY (username, sid),
+	FOREIGN KEY (username) REFERENCES FullTimeRiders,
+	FOREIGN KEY (sid) REFERENCES Schedules
 );
 
+CREATE OR REPLACE FUNCTION check_hours_constraint () RETURNS TRIGGER AS $$ 
+DECLARE
+	totalHours		INTEGER;
+	additional		INTEGER;
+BEGIN
+	SELECT SUM(EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime)) INTO totalHours
+		FROM WeeklyWorks w JOIN Riders r USING (username)
+		JOIN Schedule s USING (sid)
+		WHERE r.username = NEW.username;
+	IF (TG_OP = 'INSERT') THEN 
+		SELECT EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime) INTO additional
+			FROM Schedule s
+			WHERE s.sid = NEW.sid;
+		IF totalHours + additional > 48 THEN
+			RAISE exception 'Maximum hours to work per week is 48' ;
+		END IF;
+		RETURN NEW;
+	ELSIF (TG_OP = 'DELETE') THEN 
+		SELECT EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime) INTO additional
+			FROM Schedule s
+			WHERE s.sid = NEW.sid;
+		IF totalHours - additional < 10 THEN
+			RAISE exception 'Minimum hours to work per week is 10' ;
+		END IF;
+		RETURN OLD;
+	END IF;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS hours_trigger ON WeeklyWorks;
+CREATE TRIGGER hours_trigger
+	BEFORE INSERT OR DELETE
+	ON WeeklyWorks
+	FOR EACH ROW EXECUTE FUNCTION check_hours_constraint () ;
 
