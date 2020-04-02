@@ -22,39 +22,40 @@ DROP TABLE IF EXISTS MonthlyWorks CASCADE;
 
 
 CREATE TABLE Users (
-	username			VARCHAR(32),
+	uid					INTEGER,
+	username			VARCHAR(32) UNIQUE NOT NULL,
 	password			VARCHAR(32) NOT NULL,
 	phone 				INTEGER UNIQUE NOT NULL,
-	PRIMARY KEY (username),
+	PRIMARY KEY (uid),
 	CHECK (phone < 100000000 AND phone > 9999999)
 );
 
 CREATE TABLE Managers (
-	username			VARCHAR(32),
-	PRIMARY KEY (username),
-	FOREIGN KEY (username) REFERENCES Users
+	uid					INTEGER,
+	PRIMARY KEY (uid),
+	FOREIGN KEY (uid) REFERENCES Users
 );
 
 CREATE TABLE Staffs (
-	username			VARCHAR(32),
-	PRIMARY KEY (username),
-	FOREIGN KEY (username) REFERENCES Users
+	uid					INTEGER,
+	PRIMARY KEY (uid),
+	FOREIGN KEY (uid) REFERENCES Users
 );
 
 CREATE TABLE Riders (
-	username			VARCHAR(32),
+	uid					INTEGER,
 	salary				INTEGER,
-	PRIMARY KEY (username),
-	FOREIGN KEY (username) REFERENCES Users
+	PRIMARY KEY (uid),
+	FOREIGN KEY (uid) REFERENCES Users
 );
 
 CREATE TABLE Customers (
-	username			VARCHAR(32),
+	uid					INTEGER,
 	creditCardNumber	BIGINT CONSTRAINT sixteen_digit CHECK (creditCardNumber > 999999999999999 AND creditCardNumber < 10000000000000000),
 	ccv 				INT CONSTRAINT three_digit CHECK (ccv > 99 AND ccv < 1000),
 	rewardPoints		INTEGER NOT NULL,
-	PRIMARY KEY (username),
-	FOREIGN KEY (username) REFERENCES Users
+	PRIMARY KEY (uid),
+	FOREIGN KEY (uid) REFERENCES Users
 );
 
 CREATE TABLE Schedules (
@@ -100,20 +101,20 @@ CREATE TABLE Orders (
 	review				TEXT,
 	rid 				INTEGER REFERENCES Restaurants (rid),
 	fid					INTEGER REFERENCES FoodItems (fid),
-	cid 				VARCHAR(32) REFERENCES Customers (username),
+	cid 				INTEGER REFERENCES Customers (uid),
 	PRIMARY KEY (oid)
 );
 
 CREATE TABLE Delivers (
-	username			VARCHAR(32),
+	uid					INTEGER,
 	oid 				INTEGER UNIQUE NOT NULL,
 	startTime			TIMESTAMP,
 	departTime 			TIMESTAMP,
 	completeTime		TIMESTAMP,
 	deliverCost			FLOAT NOT NULL,
 	location			TEXT NOT NULL,
-	PRIMARY KEY (username, oid),
-	FOREIGN KEY (username) REFERENCES Riders,
+	PRIMARY KEY (uid, oid),
+	FOREIGN KEY (uid) REFERENCES Riders,
 	FOREIGN KEY (oid) REFERENCES Orders,
 	CHECK (departTime >= startTime AND completeTime >= departTime)
 );
@@ -151,51 +152,50 @@ CREATE TABLE Promotes (
 );
 
 CREATE TABLE Manages (
-	username			VARCHAR(32) UNIQUE,
+	uid					INTEGER UNIQUE,
 	rid 				INTEGER,
-	PRIMARY KEY (username, rid),
-	FOREIGN KEY (username) REFERENCES Staffs,
+	PRIMARY KEY (uid, rid),
+	FOREIGN KEY (uid) REFERENCES Staffs,
 	FOREIGN KEY (rid) REFERENCES Restaurants
 );
 
 CREATE TABLE Reviews (
-	username			VARCHAR(32) UNIQUE,
+	uid					INTEGER UNIQUE,
 	rid					INTEGER, 
 	fid					INTEGER,
-	PRIMARY KEY (username, rid, fid),
-	FOREIGN KEY (username) REFERENCES Customers,
+	PRIMARY KEY (uid, rid, fid),
+	FOREIGN KEY (uid) REFERENCES Customers,
 	FOREIGN KEY (rid) REFERENCES Restaurants,
 	FOREIGN KEY (fid) REFERENCES FoodItems
 );
 
 CREATE TABLE PartTimeRiders (
-	username			VARCHAR(32),
-	PRIMARY KEY (username),
-	FOREIGN KEY (username) REFERENCES Riders
+	uid					INTEGER,
+	PRIMARY KEY (uid),
+	FOREIGN KEY (uid) REFERENCES Riders
 );
 
 
 CREATE TABLE FullTimeRiders (
-	username			VARCHAR(32),
-	PRIMARY KEY (username),
-	FOREIGN KEY (username) REFERENCES Riders
+	uid					INTEGER,
+	PRIMARY KEY (uid),
+	FOREIGN KEY (uid) REFERENCES Riders
 );
 
-
 CREATE TABLE WeeklyWorks (
-	username			VARCHAR(32),
+	uid					INTEGER,
 	sid 				INTEGER,
-	PRIMARY KEY (username, sid),
-	FOREIGN KEY (username) REFERENCES PartTimeRiders,
+	PRIMARY KEY (uid, sid),
+	FOREIGN KEY (uid) REFERENCES PartTimeRiders,
 	FOREIGN KEY (sid) REFERENCES Schedules
 );
 
 
 CREATE TABLE MonthlyWorks (
-	username			VARCHAR(32),
+	uid					INTEGER,
 	sid 				INTEGER,
-	PRIMARY KEY (username, sid),
-	FOREIGN KEY (username) REFERENCES FullTimeRiders,
+	PRIMARY KEY (uid, sid),
+	FOREIGN KEY (uid) REFERENCES FullTimeRiders,
 	FOREIGN KEY (sid) REFERENCES Schedules
 );
 
@@ -205,9 +205,9 @@ DECLARE
 	additional		INTEGER;
 BEGIN
 	SELECT SUM(EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime)) INTO totalHours
-		FROM WeeklyWorks w JOIN Riders r USING (username)
+		FROM WeeklyWorks w JOIN Riders r USING (uid)
 		JOIN Schedule s USING (sid)
-		WHERE r.username = NEW.username;
+		WHERE r.uid = NEW.uid;
 	IF (TG_OP = 'INSERT') THEN 
 		SELECT EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime) INTO additional
 			FROM Schedule s
