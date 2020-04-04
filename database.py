@@ -7,7 +7,7 @@ def init():
                                   password=password,
                                   host="localhost",
                                   port="5432",
-                                  database="test")
+                                  database="project")
     cursor = connection.cursor()
     return connection, cursor
 
@@ -18,6 +18,6 @@ def close(cursor, connection):
         connection.close()
 
 
-def query(cursor, string):
-    cursor.execute(string)
+def query(cursor, string, param=None):
+    cursor.execute(string, param)
     return cursor.fetchall()
