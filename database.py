@@ -18,6 +18,11 @@ def close(cursor, connection):
         connection.close()
 
 
-def query(cursor, string, param=None):
+def select_query(cursor, string, param=None):
     cursor.execute(string, param)
     return cursor.fetchall()
+
+
+def update_query(connection, cursor, string, param=None):
+    cursor.execute(string, param)
+    connection.commit()
