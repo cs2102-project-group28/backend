@@ -48,3 +48,22 @@ def update(connection, cursor, id, username, password, phone):
                  'update users set username = %s, password = %s, phone = %s where uid = %s;',
                  (username, password, (phone,), (id,)))
     # print(select_query(cursor, 'select * from users where uid = %s', (id,)))
+
+
+def register(connection, cursor, username, password, phone, user_type):
+    update_query(connection, cursor,
+                 'insert into Users (uid, username, password, phone) values '
+                 '((select count(*) from Users) + 1, %s, %s, %s);', (username, password, (phone,)))
+    if user_type == 'customer':
+        update_query(connection, cursor,
+                     'insert into Customers (uid, rewardPoints) values ((select count(*) from Users), 0);')
+    if user_type == 'rider':
+        update_query(connection, cursor,
+                     'insert into Riders (uid) values ((select count(*) from Users));')
+    if user_type == 'staff':
+        update_query(connection, cursor,
+                     'insert into Staffs (uid) values ((select count(*) from Users));')
+    if username == 'manager':
+        update_query(connection, cursor,
+                     'insert into Managers (uid) values ((select count(*) from Users));')
+
