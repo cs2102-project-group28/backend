@@ -21,6 +21,21 @@ def login():
         return pos, 200
 
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        new_user = request.json
+        username = new_user['username']
+        password = new_user['password']
+        phone = new_user['phone']
+        user_type = new_user['userType']
+        if new_user['username'] == '' or new_user['password'] == '' or new_user['phone'] == '' \
+                or new_user['userType'] == '':
+            return {'message': 'Some fields are empty'}, 400
+        uqr.register(connection, cursor, username, password, phone, user_type)
+        return Response(status=200)
+
+
 @app.route('/customer/<username>/update', methods=['GET', 'POST'])
 def update(username):
     if request.method == 'POST':
@@ -56,12 +71,8 @@ def view_menu(username):
 
 
 if __name__ == '__main__':
-<<<<<<< HEAD
-    app.run(host='0.0.0.0', port=5000, debug=True)
-=======
     connection, cursor = db.init()
     # app.run(host='0.0.0.0', port=5000, debug=True)
     # print(qr.login(cursor, 'ledelheit2j', 'AeNqTx4HHKZ'))
     # uqr.update(connection, cursor, 52, 'pjuares1f', 'Ta0zdMsvk', '99691149')
     print(mqr.get_menu(cursor, "['Alfa']", "['Chinese']", '', '', ''))
->>>>>>> 7888f88a99265f9a98a7ca7748152f41247d2ea9
