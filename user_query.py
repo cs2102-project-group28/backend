@@ -56,7 +56,7 @@ def update(connection, cursor, username, password=None, phone=None):
 def register(connection, cursor, username, password, phone, user_type):
     update_query(connection, cursor,
                  'insert into Users (uid, username, password, phone) values '
-                 '((select count(*) from Users) + 1, %s, %s, %s);', (username, password, (phone,)))
+                 '((select count(*) from Users) + 1, %s, %s, %d);', (username, password, phone))
     if user_type == 'customer':
         update_query(connection, cursor,
                      'insert into Customers (uid, rewardPoints) values ((select count(*) from Users), 0);')

@@ -21,16 +21,15 @@ def login():
         return pos, 200
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['POST'])
 def register():
     if request.method == 'POST':
         new_user = request.json
         username = new_user['username']
         password = new_user['password']
-        phone = new_user['phone']
+        phone = int(new_user['phone'])
         user_type = new_user['userType']
-        if new_user['username'] == '' or new_user['password'] == '' or new_user['phone'] == '' \
-                or new_user['userType'] == '':
+        if new_user['username'] == '' or new_user['password'] == '' or new_user['userType'] == '':
             return {'message': 'Some fields are empty'}, 400
         uqr.register(connection, cursor, username, password, phone, user_type)
         return Response(status=200)
