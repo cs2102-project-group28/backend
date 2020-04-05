@@ -37,14 +37,17 @@ def login(cursor, username, password):
     return None
 
 
-def update(connection, cursor, id, username, password, phone):
-    if password == '':
-        password = select_query(cursor, 'select password from users where uid = %s', (id,))[0]
-    if phone == '':
-        phone = select_query(cursor, 'select phone from users where uid = %s', (id,))[0]
+def update(connection, cursor, username, password=None, phone=None):
+    if password is None:
+        update_query(connection, cursor,
+                     'update users set phone = %s where username = %s;',
+                     ((phone,), username))
+    if phone is None:
+        update_query(connection, cursor,
+                     'update users set password = %s where username = %s;',
+                     (password, username))
     else:
-        phone = int(phone)
-    update_query(connection, cursor,
-                 'update users set username = %s, password = %s, phone = %s where uid = %s;',
-                 (username, password, (phone,), (id,)))
+        update_query(connection, cursor,
+                     'update users set password = %s, phone = %s where username = %s;',
+                     (password, (phone,), username))
     # print(select_query(cursor, 'select * from users where uid = %s', (id,)))

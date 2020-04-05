@@ -21,22 +21,22 @@ def login():
         return pos, 200
 
 
-@app.route('/customer/<username>/update', methods=['GET', 'POST'])
+@app.route('/<username>/update', methods=['POST'])
 def update(username):
     if request.method == 'POST':
         new_user = request.json
-        id = int(new_user['uid'])
-        if new_user['username'] != '':
-            username = new_user['username']
-            if new_user['password'] == '' and new_user['phone'] == '':
-                return {'message': 'All fields are empty'}, 400
-        password = new_user['password']
-        phone = new_user['phone']
-        uqr.update(connection, cursor, id, username, password, phone)
+        if 'password' not in new_user and 'phone' not in new_user:
+            return {'message': 'All fields are empty'}, 400
+        elif 'phone' not in new_user:
+            uqr.update(connection, cursor, username, password=new_user['password'])
+        elif 'password' not in new_user:
+            uqr.update(connection, cursor, username, phone=int(new_user['phone']))
+        else:
+            uqr.update(connection, cursor, username, new_user['password'], new_user['phone'])
         return Response(status=200)
 
 
-@app.route('/customer/<username>/order', methods=['GET', 'POST'])
+@app.route('/customer/<username>/order', methods=['POST'])
 def view_menu(username):
     if request.method == 'POST':
         menu = request.json
@@ -49,15 +49,10 @@ def view_menu(username):
             'data': mqr.get_menu(cursor, rName, rCategory, location, fName, fCategory)
         }), 200
 
-    if request.method == 'GET':
-        return json.dumps({
-            'data': mqr.get_menu(cursor, '', '', '', '', '')
-        }), 200
-
 
 if __name__ == '__main__':
     connection, cursor = db.init()
-    # app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
     # print(qr.login(cursor, 'ledelheit2j', 'AeNqTx4HHKZ'))
     # uqr.update(connection, cursor, 52, 'pjuares1f', 'Ta0zdMsvk', '99691149')
-    print(mqr.get_menu(cursor, "['Alfa']", "['Chinese']", '', '', ''))
+    # print(mqr.get_menu(cursor, "['Alfa']", '[]', '[]', '[]', '[]'))
