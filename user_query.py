@@ -50,7 +50,6 @@ def update(connection, cursor, username, password=None, phone=None):
         update_query(connection, cursor,
                      'update users set password = %s, phone = %s where username = %s;',
                      (password, (phone,), username))
-    # print(select_query(cursor, 'select * from users where uid = %s', (id,)))
 
 
 def register(connection, cursor, username, password, phone, user_type):
@@ -69,4 +68,3 @@ def register(connection, cursor, username, password, phone, user_type):
     if username == 'manager':
         update_query(connection, cursor,
                      'insert into Managers (uid) values ((select count(*) from Users));')
-
