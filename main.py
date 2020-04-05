@@ -4,8 +4,10 @@ import database as db
 import user_query as uqr
 import menu_query as mqr
 import json
+from url_converter import ListConverter
 
 app = Flask(__name__, static_folder='static', template_folder='static/build')
+app.url_map.converters['list'] = ListConverter
 cors = CORS(app, resources={r"/*": {"origins": "*", "supports_credentials": True}})
 
 
@@ -40,19 +42,34 @@ def update(username):
 def view_menu(username):
     if request.method == 'POST':
         menu = request.json
-        rName = menu['rName']
-        rCategory = menu['rCategory']
-        location = menu['location']
-        fName = menu['fName']
-        fCategory = menu['fCategory']
+        rName = tuple(menu['rName'])
+        rCategory = tuple(menu['rCategory'])
+        location = tuple(menu['location'])
+        fName = tuple(menu['fName'])
+        fCategory = tuple(menu['fCategory'])
         return json.dumps({
             'data': mqr.get_menu(cursor, rName, rCategory, location, fName, fCategory)
+        }), 200
+
+
+@app.route('/customer/<username>/search-food/<item>', methods=['POST'])
+def search_food(username, item):
+    if request.method == 'POST':
+        item = str.lower(item)
+        return json.dumps({
+            'data': mqr.get_food(cursor, item)
+        }), 200
+
+
+@app.route('/customer/<username>/search-restaurant/<restaurant>', methods=['POST'])
+def search_restaurants(username, restaurant):
+    if request.method == 'POST':
+        restaurant = str.lower(restaurant)
+        return json.dumps({
+            'data': mqr.get_restaurant(cursor, restaurant)
         }), 200
 
 
 if __name__ == '__main__':
     connection, cursor = db.init()
     app.run(host='0.0.0.0', port=5000, debug=True)
-    # print(qr.login(cursor, 'ledelheit2j', 'AeNqTx4HHKZ'))
-    # uqr.update(connection, cursor, 52, 'pjuares1f', 'Ta0zdMsvk', '99691149')
-    # print(mqr.get_menu(cursor, "['Alfa']", '[]', '[]', '[]', '[]'))
