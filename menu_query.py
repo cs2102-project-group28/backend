@@ -28,6 +28,8 @@ def get_menu(cursor, rName, rCategory, location, fName, fCategory):
     query = list()
     for item in ret:
         query.append({
+            'rid': item[0],
+            'fid': item[1],
             'rName': item[2],
             'rCategory': item[3],
             'location': item[4],
@@ -60,3 +62,13 @@ def get_restaurant(cursor, restaurant):
             'location': item[1]
         } for item in all_restaurants
     ]
+
+
+def checkout(cursor, rid, fids):
+    total_price = select_query(cursor,
+                               "select sum(price) from menu "
+                               "where rid = %s and fid in %s",
+                               (rid, fids))[0][0]
+    return {
+        'total price': total_price,
+    }
