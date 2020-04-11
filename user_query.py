@@ -68,3 +68,12 @@ def register(connection, cursor, username, password, phone, user_type):
     if username == 'manager':
         update_query(connection, cursor,
                      'insert into Managers (uid) values ((select count(*) from Users));')
+
+
+def verify_customer(cursor, username, creditcard, cvv):
+    verified_creditcard, verified_cvv = select_query(cursor,
+                                                     'select creditCardNumber, cvv from '
+                                                     'customers join users using(uid) '
+                                                     'where username = %s;', (username,))[0]
+    if creditcard != verified_creditcard or cvv != verified_cvv:
+        raise Exception
