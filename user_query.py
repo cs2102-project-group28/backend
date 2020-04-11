@@ -77,3 +77,20 @@ def verify_customer(cursor, username, creditcard, cvv):
                                                      'where username = %s;', (username,))[0]
     if creditcard != verified_creditcard or cvv != verified_cvv:
         raise Exception
+
+
+def customer_update(connection, cursor, username, card_number=None, cvv=None):
+    uid = select_query(cursor,
+                       'select uid from users where username = %s', (username,))[0][0]
+    if card_number is None:
+        update_query(connection, cursor,
+                     'update customers set cvv = %s where uid = %s;',
+                     (cvv, uid))
+    elif cvv is None:
+        update_query(connection, cursor,
+                     'update customers set creditCardNumber = %s where uid = %s;',
+                     (card_number, uid))
+    else:
+        update_query(connection, cursor,
+                     'update customers set creditCardNumber = %s, cvv = %s where uid = %s;',
+                     (card_number, cvv, uid))

@@ -54,6 +54,19 @@ def update(username):
         return Response(status=200)
 
 
+@app.route('/<username>/update/customer', methods=['POST'])
+def customer_update(username):
+    if request.method == 'POST':
+        card_update = request.json
+        if 'creditCardNumber' not in card_update:
+            uqr.customer_update(connection, cursor, username, cvv=card_update['cvv'])
+        elif 'cvv' not in card_update:
+            uqr.customer_update(connection, cursor, username, card_number=card_update['creditCardNumber'])
+        else:
+            uqr.customer_update(connection, cursor, username, card_update['creditCardNumber'], card_update['cvv'])
+        return Response(status=200)
+
+
 @app.route('/customer/<username>/order', methods=['POST'])
 def view_menu(username):
     if request.method == 'POST':
@@ -68,18 +81,25 @@ def view_menu(username):
         }), 200
 
 
-@app.route('/customer/<username>/order/checkout/<rid>/<list:fids>', methods=['POST'])
-def checkout(username, rid, fids):
+@app.route('/customer/<username>/order/checkout/<rid>/<fid>', methods=['POST'])
+def checkout(username, rid, fid):
     if request.method == 'POST':
         customer = request.json
-        creditcard = int(customer['creditCardNumber'])
-        cvv = int(customer['cvv'])
         if customer['payment method'] == 'credit card':
+            creditcard = int(customer['creditCardNumber'])
+            cvv = int(customer['cvv'])
             try:
                 uqr.verify_customer(cursor, username, creditcard, cvv)
             except Exception:
                 return {'message': 'Credit card or cvv is not correct'}, 400
-        return mqr.checkout(cursor, rid, fids), 200
+        return mqr.checkout(cursor, rid, fid), 200
+
+
+@app.route('/customer/<username>/past-order/date', methods=['POST'])
+def past_order(username):
+    startdate = request.args.get('startdate')
+    enddate = request.args.get('enddate')
+    return {'data': mqr.view_past_order(cursor, username, startdate, enddate)}, 200
 
 
 @app.route('/customer/<username>/search-food/<item>', methods=['POST'])

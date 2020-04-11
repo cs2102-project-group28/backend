@@ -65,13 +65,21 @@ def get_restaurant(cursor, restaurant):
     ]
 
 
-def checkout(cursor, rid, fids):
-    total_price = select_query(cursor,
-                               "select sum(price) from menu "
-                               "where rid = %s and fid in %s",
-                               (rid, fids))[0][0]
+def checkout(cursor, rid, fid):
+    oid, food_price = select_query(cursor,
+                                   "select oid, sum(price) from menu join orders "
+                                   "using(rid, fid) "
+                                   "group by oid, rid, fid "
+                                   "having rid = %s and fid = %s",
+                                   (rid, fid))[0][0]
+    deliver_cost = select_query(cursor,
+                                "select deliverCost from delivers join orders using(oid) "
+                                "where oid = %s;", (oid,))[0][0]
+    total_price = food_price + deliver_cost
     return {
         'total price': total_price,
+        'fool price': food_price,
+        'deliver cost': deliver_cost
     }
 
 
@@ -103,3 +111,50 @@ def view_monthly_order(cursor):
             } for item in top_5
         ]
     }
+
+
+def view_past_order(cursor, username, startdate, enddate):
+    uid = select_query(cursor,
+                       'select uid from users where username = %s', (username,))[0][0]
+    if startdate is None and enddate is None:
+        order = select_query(cursor,
+                             'select orderTime, rName, fName, price '
+                             'from users join orders on uid = cid '
+                             'join restaurants using(rid) '
+                             'join foodItems using(fid) '
+                             'join menu using(rid, fid) '
+                             'where uid = %s', uid)
+    elif startdate is None:
+        order = select_query(cursor,
+                             'select orderTime, rName, fName, price '
+                             'from users join orders on uid = cid '
+                             'join restaurants using(rid) '
+                             'join foodItems using(fid) '
+                             'join menu using(rid, fid) '
+                             'where uid = %s and date(orderTime) <= %s', (uid, enddate))
+    elif enddate is None:
+        order = select_query(cursor,
+                             'select orderTime, rName, fName, price '
+                             'from users join orders on uid = cid '
+                             'join restaurants using(rid) '
+                             'join foodItems using(fid) '
+                             'join menu using(rid, fid) '
+                             'where uid = %s and date(orderTime) >= %s', (uid, startdate))
+    else:
+        order = select_query(cursor,
+                             'select orderTime, rName, fName, price, review '
+                             'from users join orders on uid = cid '
+                             'join restaurants using(rid) '
+                             'join foodItems using(fid) '
+                             'join menu using(rid, fid) '
+                             'where uid = %s and date(orderTime) >= %s and date(orderTime) <= %s',
+                             (uid, startdate, enddate))
+    return [
+        {
+            "order time": item[0],
+            "restaurant": item[1],
+            "foodItem": item[2],
+            "price": item[3],
+            'review': item[4]
+        } for item in order
+    ]
