@@ -101,6 +101,7 @@ CREATE TABLE Menu (
 CREATE TABLE Orders (
 	oid 				INTEGER,
 	review				TEXT,
+	orderTime			TIMESTAMP NOT NULL,
 	rid 				INTEGER REFERENCES Restaurants (rid),
 	fid					INTEGER REFERENCES FoodItems (fid),
 	cid 				INTEGER REFERENCES Customers (uid),
