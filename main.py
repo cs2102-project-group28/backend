@@ -3,6 +3,7 @@ from flask_cors import CORS
 import database as db
 import user_query as uqr
 import menu_query as mqr
+import promotion_query as pqr
 import json
 from url_converter import ListConverter
 
@@ -97,6 +98,22 @@ def search_restaurants(username, restaurant):
         return json.dumps({
             'data': mqr.get_restaurant(cursor, restaurant)
         }), 200
+
+
+@app.route('/staff/<username>/summary/promotion/<startdate>/<enddate>', methods=['POST'])
+@app.route('/staff/<username>/summary/promotion/<startdate>', methods=['POST'])
+def summary_promotion(username, startdate, enddate=None):
+    if request.method == 'POST':
+        data = pqr.summary(cursor, startdate, enddate)
+        if len(data) == 0:
+            return {'message': 'No promotions within this date'}, 400
+        return {'data': data}, 200
+
+
+@app.route('/staff/<username>/summary/order', methods=['POST'])
+def view_monthly_order(username):
+    if request.method == 'POST':
+        return mqr.view_monthly_order(cursor), 200
 
 
 if __name__ == '__main__':

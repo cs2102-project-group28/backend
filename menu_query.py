@@ -1,4 +1,5 @@
 from database import select_query
+from datetime import date
 
 
 def get_menu(cursor, rName, rCategory, location, fName, fCategory):
@@ -71,4 +72,34 @@ def checkout(cursor, rid, fids):
                                (rid, fids))[0][0]
     return {
         'total price': total_price,
+    }
+
+
+def view_monthly_order(cursor):
+    today_datetime = date.today()
+    all_order = select_query(cursor,
+                             'select count(*), sum(price) '
+                             'from orders join menu using(rid, fid) '
+                             'where (select extract(month from orderTime)) = %s;',
+                             (today_datetime.month,))[0]
+    top_5 = select_query(cursor,
+                         'select fName, rName, location '
+                         'from orders join menu using(rid, fid) '
+                         'join restaurants using(rid) '
+                         'join foodItems using(fid) '
+                         'group by (fName, rName, location, orderTime) '
+                         'having (select extract(month from orderTime)) = %s '
+                         'order by sum(noOfOrders) desc '
+                         'limit 5;',
+                         (today_datetime.month,))
+    return {
+        'total orders': all_order[0],
+        'total cost': all_order[1],
+        'favorite food': [
+            {
+                'fName': item[0],
+                'rName': item[1],
+                'location': item[2]
+            } for item in top_5
+        ]
     }
