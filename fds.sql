@@ -168,6 +168,7 @@ CREATE TABLE Reviews (
 	uid					INTEGER UNIQUE,
 	rid					INTEGER, 
 	fid					INTEGER,
+	review 				TEXT,
 	PRIMARY KEY (uid, rid, fid),
 	FOREIGN KEY (uid) REFERENCES Customers,
 	FOREIGN KEY (rid) REFERENCES Restaurants,
