@@ -52,6 +52,16 @@ def update(username):
         return Response(status=200)
 
 
+@app.route('/<username>/profile', methods=['POST'])
+def view_profile(username):
+    if request.method == 'POST':
+        user = request.json
+        phone = int(user['phone'])
+        user_type = user['userType']
+        reward_points = int(user['rewardPoints'])
+        return json.dumps(uqr.get_profile(cursor, username, phone, user_type, reward_points)), 200
+
+
 @app.route('/customer/<username>/order', methods=['POST'])
 def view_menu(username):
     if request.method == 'POST':
