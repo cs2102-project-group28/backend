@@ -66,6 +66,20 @@ def view_menu(username):
         }), 200
 
 
+@app.route('/customer/<username>/order/checkout/<rid>/<list:fids>', methods=['POST'])
+def checkout(username, rid, fids):
+    if request.method == 'POST':
+        customer = request.json
+        creditcard = int(customer['creditCardNumber'])
+        cvv = int(customer['cvv'])
+        if customer['payment method'] == 'credit card':
+            try:
+                uqr.verify_customer(cursor, username, creditcard, cvv)
+            except Exception:
+                return {'message': 'Credit card or cvv is not correct'}, 400
+        return mqr.checkout(cursor, rid, fids), 200
+
+
 @app.route('/customer/<username>/search-food/<item>', methods=['POST'])
 def search_food(username, item):
     if request.method == 'POST':
