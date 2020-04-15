@@ -37,6 +37,31 @@ def login(cursor, username, password):
     return None
 
 
+def get_profile(cursor, username, phone, user_type, reward_points):
+    phone = select_query(cursor, 'select phone from users where username = %s', username)
+    customer_query = select_query(cursor, 'select username from customers join users using(uid) where username = %s',
+                                  username)
+    if len(customer_query) != 0:
+        user_type = 'customer'
+    rider_query = select_query(cursor, 'select username from riders join users using(uid) where username = %s',
+                               username)
+    if len(rider_query) != 0:
+        user_type = 'rider'
+    staff_query = select_query(cursor, 'select username from staffs join users using(uid) where username = %s',
+                               username)
+    if len(staff_query) != 0:
+        user_type = 'staff'
+    manager_query = select_query(cursor, 'select username from managers join users using(uid) where username = %s',
+                                 username)
+    if len(manager_query) != 0:
+        user_type = 'manager'
+    if user_type == 'customer':
+        reward_points = select_query(cursor, 'select rewardPoints from customers join users using(uid) '
+                                             'where username = %s', username)
+        return {'userName': username, 'phone': phone, 'userType': user_type, 'rewardPoints': reward_points}
+    return {'userName': username, 'phone': phone, 'userType': user_type}
+
+
 def update(connection, cursor, username, password=None, phone=None):
     if password is None:
         update_query(connection, cursor,
@@ -50,7 +75,6 @@ def update(connection, cursor, username, password=None, phone=None):
         update_query(connection, cursor,
                      'update users set password = %s, phone = %s where username = %s;',
                      (password, (phone,), username))
-    # print(select_query(cursor, 'select * from users where uid = %s', (id,)))
 
 
 def register(connection, cursor, username, password, phone, user_type):
@@ -70,3 +94,11 @@ def register(connection, cursor, username, password, phone, user_type):
         update_query(connection, cursor,
                      'insert into Managers (uid) values ((select count(*) from Users));')
 
+
+def verify_customer(cursor, username, creditcard, cvv):
+    verified_creditcard, verified_cvv = select_query(cursor,
+                                                     'select creditCardNumber, cvv from '
+                                                     'customers join users using(uid) '
+                                                     'where username = %s;', (username,))[0]
+    if creditcard != verified_creditcard or cvv != verified_cvv:
+        raise Exception

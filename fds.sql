@@ -65,7 +65,9 @@ CREATE TABLE Schedules (
 	dayOfWeek			INTEGER,
 	PRIMARY KEY (sid),
 	UNIQUE (startTime, endTime, dayOfWeek),
-	CHECK (EXTRACT(HOUR FROM endTime) - EXTRACT(HOUR FROM startTime) < 5 AND 0 < dayOfWeek AND dayOfWeek < 8)
+	CHECK (EXTRACT(HOUR FROM endTime) - EXTRACT(HOUR FROM startTime) < 5 AND 0 < dayOfWeek AND dayOfWeek < 8
+		   AND 9 < EXTRACT(HOUR FROM startTime) AND EXTRACT(HOUR FROM startTime) < 23
+		   AND 9 < EXTRACT(HOUR FROM endTime) AND EXTRACT(HOUR FROM endTime) < 23)
 );
 
 CREATE TABLE Restaurants (
@@ -99,6 +101,7 @@ CREATE TABLE Menu (
 CREATE TABLE Orders (
 	oid 				INTEGER,
 	review				TEXT,
+	orderTime			TIMESTAMP NOT NULL,
 	rid 				INTEGER REFERENCES Restaurants (rid),
 	fid					INTEGER REFERENCES FoodItems (fid),
 	cid 				INTEGER REFERENCES Customers (uid),
@@ -147,7 +150,7 @@ CREATE TABLE Promotes (
 	pid					INTEGER,
 	rid					INTEGER,
 	fid					INTEGER,
-	PRIMARY KEY (pid, fid),
+	PRIMARY KEY (pid),
 	FOREIGN KEY (pid) REFERENCES Promotions,
 	FOREIGN KEY (rid) REFERENCES Restaurants,
 	FOREIGN KEY (fid) REFERENCES FoodItems
@@ -165,6 +168,7 @@ CREATE TABLE Reviews (
 	uid					INTEGER UNIQUE,
 	rid					INTEGER, 
 	fid					INTEGER,
+	review 				TEXT,
 	PRIMARY KEY (uid, rid, fid),
 	FOREIGN KEY (uid) REFERENCES Customers,
 	FOREIGN KEY (rid) REFERENCES Restaurants,
@@ -499,6 +503,112 @@ insert into Percentage (pid, percent, maxAmount) values (3, 0.1, NULL);
 insert into Flat (pid, flatAmount, minAmount) values (4, 5, NULL);
 insert into Flat (pid, flatAmount, minAmount) values (5, 10, 30);
 
+insert into Promotes (pid, rid, fid) values (1, 1, NULL);
+insert into Promotes (pid, rid, fid) values (2, NULL, NULL);
+insert into Promotes (pid, rid, fid) values (3, 1, 4);
+insert into Promotes (pid, rid, fid) values (4, 3, 12);
+insert into Promotes (pid, rid, fid) values (5, 5, NULL);
+
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (1, '10:00', '14:00', 1);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (2, '11:00', '15:00', 1);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (3, '12:00', '16:00', 1);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (4, '13:00', '17:00', 1);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (5, '15:00', '19:00', 1);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (6, '16:00', '20:00', 1);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (7, '17:00', '21:00', 1);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (8, '18:00', '22:00', 1);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (9, '10:00', '14:00', 2);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (10, '11:00', '15:00', 2);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (11, '12:00', '16:00', 2);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (12, '13:00', '17:00', 2);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (13, '15:00', '19:00', 2);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (14, '16:00', '20:00', 2);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (15, '17:00', '21:00', 2);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (16, '18:00', '22:00', 2);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (17, '10:00', '14:00', 3);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (18, '11:00', '15:00', 3);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (19, '12:00', '16:00', 3);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (20, '13:00', '17:00', 3);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (21, '15:00', '19:00', 3);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (22, '16:00', '20:00', 3);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (23, '17:00', '21:00', 3);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (24, '18:00', '22:00', 3);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (25, '10:00', '14:00', 4);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (26, '11:00', '15:00', 4);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (27, '12:00', '16:00', 4);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (28, '13:00', '17:00', 4);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (29, '15:00', '19:00', 4);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (30, '16:00', '20:00', 4);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (31, '17:00', '21:00', 4);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (32, '18:00', '22:00', 4);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (33, '10:00', '14:00', 5);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (34, '11:00', '15:00', 5);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (35, '12:00', '16:00', 5);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (36, '13:00', '17:00', 5);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (37, '15:00', '19:00', 5);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (38, '16:00', '20:00', 5);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (39, '17:00', '21:00', 5);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (40, '18:00', '22:00', 5);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (41, '10:00', '14:00', 6);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (42, '11:00', '15:00', 6);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (43, '12:00', '16:00', 6);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (44, '13:00', '17:00', 6);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (45, '15:00', '19:00', 6);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (46, '16:00', '20:00', 6);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (47, '17:00', '21:00', 6);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (48, '18:00', '22:00', 6);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (49, '10:00', '14:00', 7);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (50, '11:00', '15:00', 7);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (51, '12:00', '16:00', 7);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (52, '13:00', '17:00', 7);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (53, '15:00', '19:00', 7);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (54, '16:00', '20:00', 7);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (55, '17:00', '21:00', 7);
+insert into Schedules (sid, startTime, endTime, dayOfWeek) values (56, '18:00', '22:00', 7);
+
+insert into WeeklyWorks (uid, sid) values (81, 1);
+insert into WeeklyWorks (uid, sid) values (81, 5);
+insert into WeeklyWorks (uid, sid) values (81, 9);
+insert into WeeklyWorks (uid, sid) values (82, 3);
+insert into WeeklyWorks (uid, sid) values (82, 27);
+insert into WeeklyWorks (uid, sid) values (82, 35);
+insert into WeeklyWorks (uid, sid) values (83, 3);
+insert into WeeklyWorks (uid, sid) values (83, 7);
+insert into WeeklyWorks (uid, sid) values (83, 56);
+
+insert into MonthlyWorks (uid, sid) values (91, 1);
+insert into MonthlyWorks (uid, sid) values (91, 5);
+insert into MonthlyWorks (uid, sid) values (91, 9);
+insert into MonthlyWorks (uid, sid) values (91, 13);
+insert into MonthlyWorks (uid, sid) values (91, 17);
+insert into MonthlyWorks (uid, sid) values (91, 21);
+insert into MonthlyWorks (uid, sid) values (91, 25);
+insert into MonthlyWorks (uid, sid) values (91, 29);
+insert into MonthlyWorks (uid, sid) values (91, 33);
+insert into MonthlyWorks (uid, sid) values (91, 37);
+
+insert into MonthlyWorks (uid, sid) values (92, 2);
+insert into MonthlyWorks (uid, sid) values (92, 6);
+insert into MonthlyWorks (uid, sid) values (92, 10);
+insert into MonthlyWorks (uid, sid) values (92, 14);
+insert into MonthlyWorks (uid, sid) values (92, 18);
+insert into MonthlyWorks (uid, sid) values (92, 22);
+insert into MonthlyWorks (uid, sid) values (92, 26);
+insert into MonthlyWorks (uid, sid) values (92, 30);
+insert into MonthlyWorks (uid, sid) values (92, 34);
+insert into MonthlyWorks (uid, sid) values (92, 38);
+
+insert into MonthlyWorks (uid, sid) values (93, 3);
+insert into MonthlyWorks (uid, sid) values (93, 7);
+insert into MonthlyWorks (uid, sid) values (93, 11);
+insert into MonthlyWorks (uid, sid) values (93, 15);
+insert into MonthlyWorks (uid, sid) values (93, 19);
+insert into MonthlyWorks (uid, sid) values (93, 23);
+insert into MonthlyWorks (uid, sid) values (93, 27);
+insert into MonthlyWorks (uid, sid) values (93, 31);
+insert into MonthlyWorks (uid, sid) values (93, 35);
+insert into MonthlyWorks (uid, sid) values (93, 39);
+
 insert into Manages (uid, rid) values (61, 1);
 insert into Manages (uid, rid) values (62, 1);
 insert into Manages (uid, rid) values (63, 1);
@@ -527,11 +637,11 @@ DECLARE
 BEGIN
 	SELECT SUM(EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime)) INTO totalHours
 		FROM WeeklyWorks w JOIN Riders r USING (uid)
-		JOIN Schedule s USING (sid)
+		JOIN Schedules s USING (sid)
 		WHERE r.uid = NEW.uid;
 	IF (TG_OP = 'INSERT') THEN 
 		SELECT EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime) INTO additional
-			FROM Schedule s
+			FROM Schedules s
 			WHERE s.sid = NEW.sid;
 		IF totalHours + additional > 48 THEN
 			RAISE exception 'Maximum hours to work per week is 48' ;
@@ -539,7 +649,7 @@ BEGIN
 		RETURN NEW;
 	ELSIF (TG_OP = 'DELETE') THEN 
 		SELECT EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime) INTO additional
-			FROM Schedule s
+			FROM Schedules s
 			WHERE s.sid = NEW.sid;
 		IF totalHours - additional < 10 THEN
 			RAISE exception 'Minimum hours to work per week is 10' ;
