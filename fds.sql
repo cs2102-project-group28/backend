@@ -54,6 +54,7 @@ CREATE TABLE Customers (
 	creditCardNumber	BIGINT CONSTRAINT sixteen_digit CHECK (creditCardNumber > 999999999999999 AND creditCardNumber < 10000000000000000),
 	cvv 				INT CONSTRAINT three_digit CHECK (cvv > 99 AND cvv < 1000),
 	rewardPoints		INTEGER NOT NULL,
+	registerDate		DATE NOT NULL,
 	PRIMARY KEY (uid),
 	FOREIGN KEY (uid) REFERENCES Users
 );
@@ -116,10 +117,11 @@ CREATE TABLE Delivers (
 	completeTime		TIMESTAMP,
 	deliverCost			FLOAT NOT NULL,
 	location			TEXT NOT NULL,
+	rating				INTEGER,
 	PRIMARY KEY (uid, oid),
 	FOREIGN KEY (uid) REFERENCES Riders,
 	FOREIGN KEY (oid) REFERENCES Orders,
-	CHECK (departTime >= startTime AND completeTime >= departTime)
+	CHECK (departTime >= startTime AND completeTime >= departTime AND 0 < rating AND rating < 6)
 );
 
 CREATE TABLE Promotions (
@@ -306,56 +308,56 @@ insert into Users (uid, username, password, phone) values (98, 'adalesco2p', 'wo
 insert into Users (uid, username, password, phone) values (99, 'fpreuvost2q', 'YWLkUVm', 95231133);
 insert into Users (uid, username, password, phone) values (100, 'dandrewartha2r', 'IEPE09VVuXQ', 26414458);
 
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (1, 6205938526439141, 213, 0);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (2, 6080670015134003, 599, 0);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (3, 9199690668521312, 134, 0);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (4, 4902235673129731, 755, 0);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (5, 3047751615907016, 696, 384);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (6, 4676478401726700, 848, 518);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (7, 8475830413090178, 719, 970);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (8, 7848805880735187, 556, 717);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (9, 7179369420201945, 625, 708);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (10, 3070531897330590, 730, 695);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (11, 3811358837506657, 824, 501);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (12, 1740576070432224, 497, 567);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (13, 1682047131125826, 505, 902);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (14, 7173306056917831, 408, 596);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (15, 7128606896542732, 258, 783);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (16, 2825570367475332, 742, 83);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (17, 4319647658085384, 106, 188);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (18, 5023379434002091, 587, 227);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (19, 7143319783635223, 183, 315);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (20, 6235990812363391, 224, 1);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (21, 8397550286343727, 317, 34);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (22, 7568712682997110, 619, 126);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (23, 2146215024243233, 309, 935);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (24, 5387323159938328, 819, 814);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (25, 3590855805066005, 998, 76);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (26, 1900917621864588, 725, 433);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (27, 3760783353299561, 437, 372);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (28, 6744080363204237, 767, 417);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (29, 6245511546869081, 133, 635);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (30, 1330902987486440, 132, 549);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (31, 1939886205763334, 194, 340);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (32, 5792642062420556, 422, 814);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (33, 2013171925520729, 642, 964);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (34, 7833362701689934, 755, 346);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (35, 8064426903084260, 341, 310);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (36, 4876612037161838, 416, 730);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (37, 7456616213004880, 987, 549);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (38, 7615260205823254, 271, 291);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (39, 5975136197532661, 222, 346);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (40, 8459887854368480, 843, 920);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (41, 4027449621704080, 659, 279);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (42, 8494606848518884, 208, 331);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (43, 4430857662331630, 930, 778);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (44, 2149849893875049, 670, 356);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (45, 6182661167605418, 531, 494);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (46, 4997470378936459, 997, 950);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (47, 4159693379465181, 247, 753);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (48, 9110548288156392, 600, 780);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (49, 1093370340854854, 224, 637);
-insert into Customers (uid, creditCardNumber, cvv, rewardPoints) values (50, 6898450557391852, 764, 986);
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (1, 1060518948396580, 862, 1156, '2020-01-01');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (2, 9051548019567307, 121, 1917, '2020-01-01');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (3, 9371269233364764, 848, 188, '2020-01-02');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (4, 6898259634980040, 381, 1036, '2020-01-02');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (5, 2904763716243819, 284, 71, '2020-01-02');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (6, 4284775028924061, 678, 217, '2020-01-03');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (7, 8605051445857364, 601, 933, '2020-01-04');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (8, 1358722176848219, 604, 1326, '2020-01-05');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (9, 1874188628086981, 162, 1833, '2020-01-06');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (10, 3091534387211791, 382, 472, '2020-01-10');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (11, 9468666772585379, 540, 250, '2020-02-29');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (12, 6095107872768918, 760, 794, '2020-01-07');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (13, 2716099892512063, 833, 297, '2020-03-12');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (14, 5898086294874304, 282, 66, '2020-02-08');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (15, 1188560853289270, 511, 108, '2020-03-29');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (16, 8934700695763830, 305, 337, '2020-02-02');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (17, 5682934249695600, 172, 1729, '2020-01-27');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (18, 4170287523537018, 168, 1142, '2020-03-26');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (19, 6609290002085339, 772, 1332, '2020-02-05');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (20, 5658736394264512, 769, 894, '2020-02-28');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (21, 9747914336813844, 537, 800, '2020-03-17');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (22, 2307583100441084, 953, 676, '2020-01-09');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (23, 7542032738947216, 439, 807, '2020-03-18');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (24, 7528668154518979, 420, 772, '2020-03-11');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (25, 7311856452596853, 887, 145, '2020-01-03');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (26, 5332212310466738, 719, 1804, '2020-03-17');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (27, 9473438701575103, 984, 1277, '2020-01-02');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (28, 3416720443431884, 267, 1709, '2020-03-20');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (29, 5443495964131491, 301, 1788, '2020-01-06');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (30, 1069237123954481, 765, 1631, '2020-02-26');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (31, 9041155321785513, 581, 984, '2020-01-07');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (32, 7960955876715116, 119, 1709, '2020-02-05');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (33, 9272643267749550, 691, 1943, '2020-02-29');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (34, 9720987954131681, 555, 382, '2020-03-10');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (35, 8180551247059043, 495, 872, '2020-01-08');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (36, 7093040172885541, 832, 1146, '2020-01-18');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (37, 5959731337047924, 680, 162, '2020-01-17');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (38, 9602686253821247, 709, 116, '2020-03-02');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (39, 1945683856364027, 175, 1755, '2020-01-04');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (40, 6324964896861040, 789, 733, '2020-02-16');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (41, 2174387429407810, 869, 928, '2020-03-24');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (42, 9303208910396797, 685, 1661, '2020-02-27');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (43, 5765848061362362, 856, 954, '2020-03-11');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (44, 9700090051889695, 129, 866, '2020-01-03');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (45, 5077632685823797, 398, 991, '2020-02-15');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (46, 3540417000474482, 938, 520, '2020-01-13');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (47, 3700484862354190, 618, 1899, '2020-02-12');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (48, 2720653166473352, 209, 1115, '2020-02-25');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (49, 1162481408608009, 308, 1603, '2020-02-07');
+insert into Customers (uid, creditCardNumber, cvv, rewardPoints, registerDate) values (50, 2654757333874418, 652, 1362, '2020-02-21');
 
 insert into Managers (uid) values (51);
 insert into Managers (uid) values (52);
@@ -492,16 +494,16 @@ insert into Menu (rid, fid, availability, dayLimit, noOfOrders, price) values (5
 insert into Menu (rid, fid, availability, dayLimit, noOfOrders, price) values (5, 19, true, 100, 0, 2);
 
 insert into Promotions (pid, startDate, endDate) values (1, '2020-03-10', '2020-04-10');
-insert into Promotions (pid, startDate, endDate) values (2, '2020-01-20', '2020-01-25');
+insert into Promotions (pid, startDate, endDate) values (2, '2020-01-10', '2020-01-15');
 insert into Promotions (pid, startDate, endDate) values (3, '2020-01-01', '2020-05-31');
 insert into Promotions (pid, startDate, endDate) values (4, '2020-01-01', '2020-12-31');
-insert into Promotions (pid, startDate, endDate) values (5, '2020-02-01', '2020-04-30');
+insert into Promotions (pid, startDate, endDate) values (5, '2020-01-01', '2020-04-30');
 
 insert into Percentage (pid, percent, maxAmount) values (1, 0.25, 10);
 insert into Percentage (pid, percent, maxAmount) values (2, 0.2, 20);
 insert into Percentage (pid, percent, maxAmount) values (3, 0.1, NULL);
-insert into Flat (pid, flatAmount, minAmount) values (4, 5, NULL);
-insert into Flat (pid, flatAmount, minAmount) values (5, 10, 30);
+insert into Flat (pid, flatAmount, minAmount) values (4, 5.5, NULL);
+insert into Flat (pid, flatAmount, minAmount) values (5, 3, 10);
 
 insert into Promotes (pid, rid, fid) values (1, 1, NULL);
 insert into Promotes (pid, rid, fid) values (2, NULL, NULL);
@@ -629,6 +631,28 @@ insert into Manages (uid, rid) values (77, 5);
 insert into Manages (uid, rid) values (78, 5);
 insert into Manages (uid, rid) values (79, 5);
 insert into Manages (uid, rid) values (80, 5);
+
+insert into Orders (oid, orderTime, rid, fid, cid) values (1, '2020-01-06 10:01:02', 1, 4, 1);
+insert into Orders (oid, orderTime, rid, fid, cid) values (2, '2020-01-07 12:00:00', 1, 1, 1);
+insert into Orders (oid, orderTime, rid, fid, cid) values (3, '2020-01-07 14:12:34', 4, 16, 2);
+insert into Orders (oid, orderTime, rid, fid, cid) values (4, '2020-01-07 15:59:00', 1, 4, 3);
+insert into Orders (oid, orderTime, rid, fid, cid) values (5, '2020-01-08 16:13:17', 1, 4, 3);
+insert into Orders (oid, orderTime, rid, fid, cid) values (6, '2020-01-10 11:19:02', 5, 16, 4);
+insert into Orders (oid, orderTime, rid, fid, cid) values (7, '2020-01-10 13:11:53', 5, 17, 5);
+insert into Orders (oid, orderTime, rid, fid, cid) values (8, '2020-01-10 17:51:49', 2, 6, 6);
+insert into Orders (oid, orderTime, rid, fid, cid) values (9, '2020-01-12 20:12:24', 2, 8, 7);
+insert into Orders (oid, orderTime, rid, fid, cid) values (10, '2020-01-12 21:30:51', 3, 12, 8);
+
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (81, 1, '2020-01-06 10:01:30', '2020-01-06 10:18:32', '2020-01-06 10:23:49', 27, 'PGPR NUS Block 2', 4);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (81, 2, '2020-01-07 12:00:17', '2020-01-07 12:11:53', '2020-01-07 12:20:17', 20, 'PGPR NUS Block 2', NULL);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (92, 3, '2020-01-07 14:12:54', '2020-01-07 14:30:11', '2020-01-07 14:37:50', 10, 'Clementi MRT', 5);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (93, 4, '2020-01-07 15:59:14', '2020-01-07 16:18:45', '2020-01-07 16:30:12', 24, 'Kent Ridge Hall', 5);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (92, 5, '2020-01-08 16:13:32', '2020-01-08 16:40:43', '2020-01-08 17:01:30', 24, 'Kent Ridge Hall', 4);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (91, 6, '2020-01-10 11:19:25', '2020-01-10 11:31:26', '2020-01-10 11:42:58', 9, 'RVRC Block B', NULL);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (82, 7, '2020-01-10 13:12:09', '2020-01-10 13:30:00', '2020-01-10 13:36:54', 8, 'PGPR NUS Block 28', NULL);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (91, 8, '2020-01-10 17:52:00', '2020-01-10 18:08:29', '2020-01-10 18:18:18', 38.5, 'Yusof Ishak House', 3);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (83, 9, '2020-01-12 20:12:39', '2020-01-12 20:18:57', '2020-01-12 20:28:03', 10, 'University Town', 4);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (83, 10, '2020-01-12 21:31:10', '2020-01-12 21:50:23', '2020-01-12 21:58:20', 14.5, 'Raffles Hall', 5);
 
 CREATE OR REPLACE FUNCTION check_hours_constraint () RETURNS TRIGGER AS $$ 
 DECLARE
