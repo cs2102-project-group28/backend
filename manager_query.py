@@ -10,7 +10,7 @@ def month_summary(cursor, month, year):
                              'and (select extract(year from orderTime)) = %s;',
                              (month, year))[0]
     user_order_in_month = select_query(cursor,
-                                       'select cid '
+                                       'select distinct cid '
                                        'from orders '
                                        'where (select extract(month from orderTime)) = %s '
                                        'and (select extract(year from orderTime)) = %s;',
@@ -20,10 +20,10 @@ def month_summary(cursor, month, year):
                                 'select cid, count(*), sum(price), sum(deliverCost) '
                                 'from orders join menu using(rid, fid) '
                                 'join delivers using(oid) '
+                                'where (select extract(month from orderTime)) = %s '
+                                'and (select extract(year from orderTime)) = %s '
                                 'group by (cid) '
-                                'having (select extract(month from orderTime)) = %s '
-                                'and (select extract(year from orderTime)) = %s;'
-                                'and cid in %s;',
+                                'having cid in %s;',
                                 (month, year, user_ids))
     ret = {
         'no. of orders': all_order[0],
@@ -40,15 +40,30 @@ def month_summary(cursor, month, year):
     return ret
 
 
-def order_summary(cursor, area, starttime, endtime):
+def order_summary(cursor, area, day, starttime, endtime):
     data = select_query(cursor,
-                        'select oid '
-                        'from orders join delivers '
-                        'using(oid) '
-                        'where location = %s '
-                        'and orderTime >= %s and orderTime <= %s;',
-                        (area, starttime, endtime))
-    return data
+                        'select oid, orderTime, rName, fName, cid '
+                        'from orders o join delivers d using(oid) '
+                        'join restaurants using(rid) '
+                        'join foodItems using(fid) '
+                        'where d.location = %s '
+                        'and date(orderTime) = %s and (select orderTime::time) >= %s '
+                        'and (select orderTime::time) <= %s;',
+                        (area, day, starttime, endtime))
+    ret = [
+        {
+            'oid': item[0],
+            'orderTime': item[1],
+            'rName': item[2],
+            'fName': item[3],
+            'uid': item[4]
+        }
+        for item in data
+    ]
+    return {
+        'no. of order': len(ret),
+        'order': ret
+    }
 
 
 def part_time_summary(cursor, month, year):
@@ -59,39 +74,89 @@ def part_time_summary(cursor, month, year):
                         '(select extract(month from orderTime)) as month, '
                         '(select extract(year from orderTime)) as year '
                         'from delivers join parttimeriders using(uid) '
-                        'join orders using(uid) '
-                        'group by uid, month, year '
-                        'having rating is not null), '
+                        'join orders using(oid) '
+                        'where rating is not null '
+                        'group by uid, month, year), '
                         ''
                         'RiderOrder as '
                         '(select uid, count(*) as numOrder, '
                         '(select extract(month from orderTime)) as month, '
                         '(select extract(year from orderTime)) as year '
                         'from delivers join parttimeriders using(uid) '
-                        'join orders using(uid) '
+                        'join orders using(oid) '
                         'group by uid, month, year), '
                         ''
                         'RiderWork as '
                         '(select uid, salary, '
                         'sum(EXTRACT(HOUR FROM endTime) - EXTRACT(HOUR FROM startTime)) as totalTime '
                         'from parttimeriders join riders using(uid) '
-                        'join weeklywork using(uid) '
+                        'join weeklyworks using(uid) '
                         'join schedules using(sid) '
                         'group by uid, salary) '
                         ''
-                        'select * '
-                        'from RiderRating join RiderOrder using(uid, month, year) '
-                        'join RiderWord using(uid) '
+                        'select uid, numRating, totalRating, numOrder, salary, totalTime '
+                        'from RiderRating right join RiderOrder '
+                        'using(uid, month, year) '
+                        'join RiderWork using(uid) '
                         'where month = %s and year = %s;',
                         (month, year,))
     return [
         {
+            'type': 'part time',
             'uid': item[0],
-            'no. rating': item[1],
-            'average rating': item[2] / item[1],
-            'no. order': item[5],
-            'salary': item[6],
-            'total time': item[7],
+            'no. rating': (item[1] if item[1] else 0),
+            'average rating': item[2] / item[1] if item[1] else None,
+            'no. order': item[3],
+            'salary': item[4],
+            'total time': item[5],
+        }
+        for item in data
+    ]
+
+
+def full_time_summary(cursor, month, year):
+    data = select_query(cursor,
+                        'with '
+                        'RiderRating as '
+                        '(select uid, count(*) as numRating, sum(rating) as totalRating, '
+                        '(select extract(month from orderTime)) as month, '
+                        '(select extract(year from orderTime)) as year '
+                        'from delivers join fulltimeriders using(uid) '
+                        'join orders using(oid) '
+                        'where rating is not null '
+                        'group by uid, month, year), '
+                        ''
+                        'RiderOrder as '
+                        '(select uid, count(*) as numOrder, '
+                        '(select extract(month from orderTime)) as month, '
+                        '(select extract(year from orderTime)) as year '
+                        'from delivers join fulltimeriders using(uid) '
+                        'join orders using(oid) '
+                        'group by uid, month, year), '
+                        ''
+                        'RiderWork as '
+                        '(select uid, salary, '
+                        'sum(EXTRACT(HOUR FROM endTime) - EXTRACT(HOUR FROM startTime)) as totalTime '
+                        'from fulltimeriders join riders using(uid) '
+                        'join monthlyworks using(uid) '
+                        'join schedules using(sid) '
+                        'group by uid, salary) '
+                        ''
+                        'select uid, numRating, totalRating, numOrder, salary, totalTime '
+                        'from RiderRating right join RiderOrder '
+                        'using(uid, month, year) '
+                        'join RiderWork using(uid) '
+                        'where month = %s and year = %s;',
+                        (month, year,))
+    return [
+        {
+            'type': 'full time',
+            'uid': item[0],
+            'no. rating': (item[1] if item[1] else 0),
+            'average rating': item[2] / item[1] if item[1] else None,
+            'no. order': item[3],
+            'salary': item[4],
+            'total time': item[5] * 4,
         }
         for item in data
     ]
@@ -99,4 +164,8 @@ def part_time_summary(cursor, month, year):
 
 def rider_summary(cursor, month, year):
     part_time = part_time_summary(cursor, month, year)
-    return part_time
+    full_time = full_time_summary(cursor, month, year)
+    return {
+        'part time': part_time,
+        'full time': full_time
+    }

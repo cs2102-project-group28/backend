@@ -120,7 +120,7 @@ def summary_promotion(username, startdate, enddate=None):
     if request.method == 'POST':
         data = pqr.summary(cursor, startdate, enddate, username)
         if len(data) == 0:
-            return {'message': 'No promotions within this date'}, 400
+            return {'message': 'No promotions within this time for your restaurant'}, 400
         return {'data': data}, 200
 
 
@@ -136,16 +136,11 @@ def month_summary(username, month, year):
         return mngqr.month_summary(cursor, month, year), 200
 
 
-@app.route('/manager/<username>/order/<area>/<starttime>/<endtime>', methods=['POST'])
-def order_summary(username, area, starttime, endtime):
+@app.route('/manager/<username>/order/<area>/<day>/<starttime>/<endtime>', methods=['POST'])
+def order_summary(username, area, day, starttime, endtime):
     if request.method == 'POST':
-        data = mngqr.order_summary(cursor, area, starttime, endtime)
-        no_orders = len(data)
-        oid = [item[0] for item in data]
-        return {
-            'number of order': no_orders,
-            'oid': oid
-        }, 200
+        data = mngqr.order_summary(cursor, area, day, starttime, endtime)
+        return data, 200
 
 
 @app.route('/manager/<username>/rider/<month>/<year>', methods=['POST'])

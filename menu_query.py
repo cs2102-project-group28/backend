@@ -87,20 +87,22 @@ def view_monthly_order(cursor, username, month, year):
                        'select uid from users where username = %s;',
                        (username,))[0][0]
     all_order = select_query(cursor,
-                             'select count(*), sum(price) '
+                             'select count(*), sum(price), rName, location '
                              'from orders join menu using(rid, fid) '
-                             'join staffs using(uid) '
+                             'join manages using(rid) '
+                             'join restaurants using(rid) '
                              'where (select extract(month from orderTime)) = %s '
                              'and (select extract(year from orderTime)) = %s '
-                             'and uid = %s;',
+                             'group by (rName, location, uid) '
+                             'having uid = %s;',
                              (month, year, uid))[0]
     top_5 = select_query(cursor,
-                         'select fName, rName, location '
+                         'select fName, cid, orderTime '
                          'from orders join menu using(rid, fid) '
                          'join restaurants using(rid) '
                          'join foodItems using(fid) '
                          'join manages using(rid) '
-                         'group by (fName, rName, location, orderTime, uid) '
+                         'group by (fName, cid, uid, orderTime) '
                          'having (select extract(month from orderTime)) = %s '
                          'and (select extract(year from orderTime)) = %s '
                          'and uid = %s '
@@ -110,11 +112,13 @@ def view_monthly_order(cursor, username, month, year):
     return {
         'total orders': all_order[0],
         'total cost': all_order[1],
+        'rName': all_order[2],
+        'location': all_order[3],
         'favorite food': [
             {
                 'fName': item[0],
-                'rName': item[1],
-                'location': item[2]
+                'cid': item[1],
+                'order time': item[2]
             } for item in top_5
         ]
     }
