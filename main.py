@@ -5,6 +5,7 @@ import user_query as uqr
 import menu_query as mqr
 import manager_query as mngqr
 import promotion_query as pqr
+import rider_query as rqr
 from url_converter import ListConverter
 
 app = Flask(__name__, static_folder='static', template_folder='static/build')
@@ -147,6 +148,13 @@ def order_summary(username, area, day, starttime, endtime):
 def rider_summary(username, month, year):
     if request.method == 'POST':
         data = mngqr.rider_summary(cursor, month, year)
+        return {'data': data}, 200
+
+
+@app.route('/rider/<username>/summary/<month>/<year>', methods=['POST'])
+def summary(username, month, year):
+    if request.method == 'POST':
+        data = rqr.summary(cursor, username, month, year)
         return {'data': data}, 200
 
 

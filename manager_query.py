@@ -3,6 +3,12 @@ import time
 
 
 def month_summary(cursor, month, year):
+    new_customer = select_query(cursor,
+                                'select count(*) '
+                                'from customers '
+                                'where extract(month from registerDate) = %s '
+                                'and extract(year from registerDate) = %s;',
+                                (month, year))[0][0]
     all_order = select_query(cursor,
                              'select count(*), sum(price), sum(deliverCost) '
                              'from orders join menu using(rid, fid) '
@@ -27,6 +33,7 @@ def month_summary(cursor, month, year):
                                 'having cid in %s;',
                                 (month, year, user_ids))
     ret = {
+        'new user': new_customer,
         'no. of orders': all_order[0],
         'total price': all_order[1] + all_order[2],
         'user': [
@@ -114,7 +121,7 @@ def part_time_summary(cursor, month, year):
             'no. rating': (item[1] if item[1] else 0),
             'average rating': item[2] / item[1] if item[1] else None,
             'no. order': item[3],
-            'salary': item[4],
+            'salary': item[4] * 4,
             'total time': item[5],
             'average deliver time': str(time.strftime('%H:%M:%S', time.gmtime(round((item[6] / item[3]).total_seconds()))))
         }
@@ -169,8 +176,8 @@ def full_time_summary(cursor, month, year):
             'no. rating': (item[1] if item[1] else 0),
             'average rating': item[2] / item[1] if item[1] else None,
             'no. order': item[3],
-            'salary': item[4],
-            'total time': item[5],
+            'salary': item[4] * 4,
+            'total time': item[5] * 4,
             'average deliver time': str(time.strftime('%H:%M:%S', time.gmtime(round((item[6] / item[3]).total_seconds()))))
         }
         for item in data
