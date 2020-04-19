@@ -12,7 +12,6 @@ DROP TABLE IF EXISTS FoodItems CASCADE;
 DROP TABLE IF EXISTS Promotes CASCADE;
 DROP TABLE IF EXISTS Promotions CASCADE;
 DROP TABLE IF EXISTS Manages CASCADE;
-DROP TABLE IF EXISTS Reviews CASCADE;
 DROP TABLE IF EXISTS Percentage CASCADE;
 DROP TABLE IF EXISTS Flat CASCADE;
 DROP TABLE IF EXISTS PartTimeRiders CASCADE;
@@ -163,17 +162,6 @@ CREATE TABLE Manages (
 	PRIMARY KEY (uid, rid),
 	FOREIGN KEY (uid) REFERENCES Staffs,
 	FOREIGN KEY (rid) REFERENCES Restaurants
-);
-
-CREATE TABLE Reviews (
-	uid					INTEGER UNIQUE,
-	rid					INTEGER, 
-	fid					INTEGER,
-	review 				TEXT,
-	PRIMARY KEY (uid, rid, fid),
-	FOREIGN KEY (uid) REFERENCES Customers,
-	FOREIGN KEY (rid) REFERENCES Restaurants,
-	FOREIGN KEY (fid) REFERENCES FoodItems
 );
 
 CREATE TABLE PartTimeRiders (
@@ -731,16 +719,16 @@ insert into Manages (uid, rid) values (78, 5);
 insert into Manages (uid, rid) values (79, 5);
 insert into Manages (uid, rid) values (80, 5);
 
-insert into Orders (oid, orderTime, rid, fid, cid) values (1, '2020-01-06 10:01:02', 1, 4, 1);
-insert into Orders (oid, orderTime, rid, fid, cid) values (2, '2020-01-07 12:00:00', 1, 1, 1);
-insert into Orders (oid, orderTime, rid, fid, cid) values (3, '2020-01-07 14:12:34', 4, 16, 2);
-insert into Orders (oid, orderTime, rid, fid, cid) values (4, '2020-01-07 15:59:00', 1, 4, 3);
-insert into Orders (oid, orderTime, rid, fid, cid) values (5, '2020-01-08 16:13:17', 1, 4, 3);
-insert into Orders (oid, orderTime, rid, fid, cid) values (6, '2020-01-10 11:19:02', 5, 16, 4);
-insert into Orders (oid, orderTime, rid, fid, cid) values (7, '2020-01-10 13:11:53', 5, 17, 5);
-insert into Orders (oid, orderTime, rid, fid, cid) values (8, '2020-01-10 17:51:49', 2, 6, 6);
-insert into Orders (oid, orderTime, rid, fid, cid) values (9, '2020-01-12 20:12:24', 2, 8, 7);
-insert into Orders (oid, orderTime, rid, fid, cid) values (10, '2020-01-12 21:30:51', 3, 12, 8);
+insert into Orders (oid, review, orderTime, rid, fid, cid) values (1, 'Good food', '2020-01-06 10:01:02', 1, 4, 1);
+insert into Orders (oid, review, orderTime, rid, fid, cid) values (2, 'Could have been better', '2020-01-07 12:00:00', 1, 1, 1);
+insert into Orders (oid, review, orderTime, rid, fid, cid) values (3, NULL, '2020-01-07 14:12:34', 4, 16, 2);
+insert into Orders (oid, review, orderTime, rid, fid, cid) values (4, NULL, '2020-01-07 15:59:00', 1, 4, 3);
+insert into Orders (oid, review, orderTime, rid, fid, cid) values (5, NULL, '2020-01-08 16:13:17', 1, 4, 3);
+insert into Orders (oid, review, orderTime, rid, fid, cid) values (6, 'Too salty', '2020-01-10 11:19:02', 5, 16, 4);
+insert into Orders (oid, review, orderTime, rid, fid, cid) values (7, NULL, '2020-01-10 13:11:53', 5, 17, 5);
+insert into Orders (oid, review, orderTime, rid, fid, cid) values (8, NULL, '2020-01-10 17:51:49', 2, 6, 6);
+insert into Orders (oid, review, orderTime, rid, fid, cid) values (9, 'Love it!', '2020-01-12 20:12:24', 2, 8, 7);
+insert into Orders (oid, review, orderTime, rid, fid, cid) values (10, 'Too dry', '2020-01-12 21:30:51', 3, 12, 8);
 
 insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (81, 1, '2020-01-06 10:01:30', '2020-01-06 10:18:32', '2020-01-06 10:23:49', 27, 'PGPR NUS Block 2', 4);
 insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (81, 2, '2020-01-07 12:00:17', '2020-01-07 12:11:53', '2020-01-07 12:20:17', 20, 'PGPR NUS Block 2', NULL);
