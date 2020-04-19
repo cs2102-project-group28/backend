@@ -1,4 +1,5 @@
 from database import select_query, update_query
+from datetime import date
 
 
 def login(cursor, username, password):
@@ -57,8 +58,9 @@ def register(connection, cursor, username, password, phone, user_type):
                  'insert into Users (uid, username, password, phone) values '
                  '((select count(*) from Users) + 1, %s, %s, %s);', (username, password, (phone,)))
     if user_type == 'customer':
+        today = date.today()
         update_query(connection, cursor,
-                     'insert into Customers (uid, rewardPoints) values ((select count(*) from Users), 0);')
+                     'insert into Customers (uid, rewardPoints, registerDate) values ((select count(*) from Users), 0, %s);', (today,))
     if user_type == 'rider':
         update_query(connection, cursor,
                      'insert into Riders (uid) values ((select count(*) from Users));')
