@@ -44,7 +44,6 @@ CREATE TABLE Staffs (
 
 CREATE TABLE Riders (
 	uid					INTEGER,
-	salary				INTEGER,
 	PRIMARY KEY (uid),
 	FOREIGN KEY (uid) REFERENCES Users
 );
@@ -179,6 +178,7 @@ CREATE TABLE Reviews (
 
 CREATE TABLE PartTimeRiders (
 	uid					INTEGER,
+	psalary				INTEGER NOT NULL,
 	PRIMARY KEY (uid),
 	FOREIGN KEY (uid) REFERENCES Riders
 );
@@ -186,6 +186,7 @@ CREATE TABLE PartTimeRiders (
 
 CREATE TABLE FullTimeRiders (
 	uid					INTEGER,
+	fsalary				INTEGER NOT NULL,
 	PRIMARY KEY (uid),
 	FOREIGN KEY (uid) REFERENCES Riders
 );
@@ -391,48 +392,48 @@ insert into Staffs (uid) values (78);
 insert into Staffs (uid) values (79);
 insert into Staffs (uid) values (80);
 
-insert into Riders (uid, salary) values (81, 0);
-insert into Riders (uid, salary) values (82, 0);
-insert into Riders (uid, salary) values (83, 0);
-insert into Riders (uid, salary) values (84, 0);
-insert into Riders (uid, salary) values (85, 0);
-insert into Riders (uid, salary) values (86, 0);
-insert into Riders (uid, salary) values (87, 0);
-insert into Riders (uid, salary) values (88, 0);
-insert into Riders (uid, salary) values (89, 0);
-insert into Riders (uid, salary) values (90, 0);
-insert into Riders (uid, salary) values (91, 0);
-insert into Riders (uid, salary) values (92, 0);
-insert into Riders (uid, salary) values (93, 0);
-insert into Riders (uid, salary) values (94, 0);
-insert into Riders (uid, salary) values (95, 0);
-insert into Riders (uid, salary) values (96, 0);
-insert into Riders (uid, salary) values (97, 0);
-insert into Riders (uid, salary) values (98, 0);
-insert into Riders (uid, salary) values (99, 0);
-insert into Riders (uid, salary) values (100, 0);
+insert into Riders (uid) values (81);
+insert into Riders (uid) values (82);
+insert into Riders (uid) values (83);
+insert into Riders (uid) values (84);
+insert into Riders (uid) values (85);
+insert into Riders (uid) values (86);
+insert into Riders (uid) values (87);
+insert into Riders (uid) values (88);
+insert into Riders (uid) values (89);
+insert into Riders (uid) values (90);
+insert into Riders (uid) values (91);
+insert into Riders (uid) values (92);
+insert into Riders (uid) values (93);
+insert into Riders (uid) values (94);
+insert into Riders (uid) values (95);
+insert into Riders (uid) values (96);
+insert into Riders (uid) values (97);
+insert into Riders (uid) values (98);
+insert into Riders (uid) values (99);
+insert into Riders (uid) values (100);
 
-insert into PartTimeRiders (uid) values (81);
-insert into PartTimeRiders (uid) values (82);
-insert into PartTimeRiders (uid) values (83);
-insert into PartTimeRiders (uid) values (84);
-insert into PartTimeRiders (uid) values (85);
-insert into PartTimeRiders (uid) values (86);
-insert into PartTimeRiders (uid) values (87);
-insert into PartTimeRiders (uid) values (88);
-insert into PartTimeRiders (uid) values (89);
-insert into PartTimeRiders (uid) values (90);
+insert into PartTimeRiders (uid, psalary) values (81, 12);
+insert into PartTimeRiders (uid, psalary) values (82, 12);
+insert into PartTimeRiders (uid, psalary) values (83, 12);
+insert into PartTimeRiders (uid, psalary) values (84, 12);
+insert into PartTimeRiders (uid, psalary) values (85, 12);
+insert into PartTimeRiders (uid, psalary) values (86, 12);
+insert into PartTimeRiders (uid, psalary) values (87, 12);
+insert into PartTimeRiders (uid, psalary) values (88, 12);
+insert into PartTimeRiders (uid, psalary) values (89, 12);
+insert into PartTimeRiders (uid, psalary) values (90, 12);
 
-insert into FullTimeRiders (uid) values (91);
-insert into FullTimeRiders (uid) values (92);
-insert into FullTimeRiders (uid) values (93);
-insert into FullTimeRiders (uid) values (94);
-insert into FullTimeRiders (uid) values (95);
-insert into FullTimeRiders (uid) values (96);
-insert into FullTimeRiders (uid) values (97);
-insert into FullTimeRiders (uid) values (98);
-insert into FullTimeRiders (uid) values (99);
-insert into FullTimeRiders (uid) values (100);
+insert into FullTimeRiders (uid, fsalary) values (91, 40);
+insert into FullTimeRiders (uid, fsalary) values (92, 40);
+insert into FullTimeRiders (uid, fsalary) values (93, 40);
+insert into FullTimeRiders (uid, fsalary) values (94, 40);
+insert into FullTimeRiders (uid, fsalary) values (95, 40);
+insert into FullTimeRiders (uid, fsalary) values (96, 40);
+insert into FullTimeRiders (uid, fsalary) values (97, 40);
+insert into FullTimeRiders (uid, fsalary) values (98, 40);
+insert into FullTimeRiders (uid, fsalary) values (99, 40);
+insert into FullTimeRiders (uid, fsalary) values (100, 40);
 
 insert into Restaurants (rid, rName, rCategory, location, minSpent) values (1, 'Alfa', 'Western', '4939 Mccormick Alley', 4.8);
 insert into Restaurants (rid, rName, rCategory, location, minSpent) values (2, 'Xray', 'Chinese', '37 Old Shore Drive', 13.4);
@@ -577,6 +578,27 @@ insert into WeeklyWorks (uid, sid) values (82, 35);
 insert into WeeklyWorks (uid, sid) values (83, 3);
 insert into WeeklyWorks (uid, sid) values (83, 7);
 insert into WeeklyWorks (uid, sid) values (83, 56);
+insert into WeeklyWorks (uid, sid) values (84, 41);
+insert into WeeklyWorks (uid, sid) values (84, 45);
+insert into WeeklyWorks (uid, sid) values (84, 49);
+insert into WeeklyWorks (uid, sid) values (85, 44);
+insert into WeeklyWorks (uid, sid) values (85, 48);
+insert into WeeklyWorks (uid, sid) values (85, 55);
+insert into WeeklyWorks (uid, sid) values (86, 2);
+insert into WeeklyWorks (uid, sid) values (86, 10);
+insert into WeeklyWorks (uid, sid) values (86, 18);
+insert into WeeklyWorks (uid, sid) values (87, 14);
+insert into WeeklyWorks (uid, sid) values (87, 22);
+insert into WeeklyWorks (uid, sid) values (87, 30);
+insert into WeeklyWorks (uid, sid) values (88, 10);
+insert into WeeklyWorks (uid, sid) values (88, 20);
+insert into WeeklyWorks (uid, sid) values (88, 30);
+insert into WeeklyWorks (uid, sid) values (89, 29);
+insert into WeeklyWorks (uid, sid) values (89, 39);
+insert into WeeklyWorks (uid, sid) values (89, 49);
+insert into WeeklyWorks (uid, sid) values (90, 11);
+insert into WeeklyWorks (uid, sid) values (90, 22);
+insert into WeeklyWorks (uid, sid) values (90, 33);
 
 insert into MonthlyWorks (uid, sid) values (91, 1);
 insert into MonthlyWorks (uid, sid) values (91, 5);
@@ -610,6 +632,83 @@ insert into MonthlyWorks (uid, sid) values (93, 27);
 insert into MonthlyWorks (uid, sid) values (93, 31);
 insert into MonthlyWorks (uid, sid) values (93, 35);
 insert into MonthlyWorks (uid, sid) values (93, 39);
+
+insert into MonthlyWorks (uid, sid) values (94, 4);
+insert into MonthlyWorks (uid, sid) values (94, 8);
+insert into MonthlyWorks (uid, sid) values (94, 12);
+insert into MonthlyWorks (uid, sid) values (94, 16);
+insert into MonthlyWorks (uid, sid) values (94, 20);
+insert into MonthlyWorks (uid, sid) values (94, 24);
+insert into MonthlyWorks (uid, sid) values (94, 28);
+insert into MonthlyWorks (uid, sid) values (94, 32);
+insert into MonthlyWorks (uid, sid) values (94, 36);
+insert into MonthlyWorks (uid, sid) values (94, 40);
+
+insert into MonthlyWorks (uid, sid) values (95, 9);
+insert into MonthlyWorks (uid, sid) values (95, 13);
+insert into MonthlyWorks (uid, sid) values (95, 17);
+insert into MonthlyWorks (uid, sid) values (95, 21);
+insert into MonthlyWorks (uid, sid) values (95, 25);
+insert into MonthlyWorks (uid, sid) values (95, 29);
+insert into MonthlyWorks (uid, sid) values (95, 33);
+insert into MonthlyWorks (uid, sid) values (95, 37);
+insert into MonthlyWorks (uid, sid) values (95, 41);
+insert into MonthlyWorks (uid, sid) values (95, 45);
+
+insert into MonthlyWorks (uid, sid) values (96, 10);
+insert into MonthlyWorks (uid, sid) values (96, 14);
+insert into MonthlyWorks (uid, sid) values (96, 18);
+insert into MonthlyWorks (uid, sid) values (96, 22);
+insert into MonthlyWorks (uid, sid) values (96, 26);
+insert into MonthlyWorks (uid, sid) values (96, 30);
+insert into MonthlyWorks (uid, sid) values (96, 34);
+insert into MonthlyWorks (uid, sid) values (96, 38);
+insert into MonthlyWorks (uid, sid) values (96, 42);
+insert into MonthlyWorks (uid, sid) values (96, 46);
+
+insert into MonthlyWorks (uid, sid) values (97, 20);
+insert into MonthlyWorks (uid, sid) values (97, 24);
+insert into MonthlyWorks (uid, sid) values (97, 28);
+insert into MonthlyWorks (uid, sid) values (97, 32);
+insert into MonthlyWorks (uid, sid) values (97, 36);
+insert into MonthlyWorks (uid, sid) values (97, 40);
+insert into MonthlyWorks (uid, sid) values (97, 44);
+insert into MonthlyWorks (uid, sid) values (97, 48);
+insert into MonthlyWorks (uid, sid) values (97, 52);
+insert into MonthlyWorks (uid, sid) values (97, 56);
+
+insert into MonthlyWorks (uid, sid) values (98, 19);
+insert into MonthlyWorks (uid, sid) values (98, 23);
+insert into MonthlyWorks (uid, sid) values (98, 27);
+insert into MonthlyWorks (uid, sid) values (98, 31);
+insert into MonthlyWorks (uid, sid) values (98, 35);
+insert into MonthlyWorks (uid, sid) values (98, 39);
+insert into MonthlyWorks (uid, sid) values (98, 43);
+insert into MonthlyWorks (uid, sid) values (98, 47);
+insert into MonthlyWorks (uid, sid) values (98, 51);
+insert into MonthlyWorks (uid, sid) values (98, 55);
+
+insert into MonthlyWorks (uid, sid) values (99, 18);
+insert into MonthlyWorks (uid, sid) values (99, 22);
+insert into MonthlyWorks (uid, sid) values (99, 26);
+insert into MonthlyWorks (uid, sid) values (99, 30);
+insert into MonthlyWorks (uid, sid) values (99, 34);
+insert into MonthlyWorks (uid, sid) values (99, 38);
+insert into MonthlyWorks (uid, sid) values (99, 42);
+insert into MonthlyWorks (uid, sid) values (99, 46);
+insert into MonthlyWorks (uid, sid) values (99, 50);
+insert into MonthlyWorks (uid, sid) values (99, 54);
+
+insert into MonthlyWorks (uid, sid) values (100, 17);
+insert into MonthlyWorks (uid, sid) values (100, 21);
+insert into MonthlyWorks (uid, sid) values (100, 25);
+insert into MonthlyWorks (uid, sid) values (100, 29);
+insert into MonthlyWorks (uid, sid) values (100, 33);
+insert into MonthlyWorks (uid, sid) values (100, 37);
+insert into MonthlyWorks (uid, sid) values (100, 41);
+insert into MonthlyWorks (uid, sid) values (100, 45);
+insert into MonthlyWorks (uid, sid) values (100, 49);
+insert into MonthlyWorks (uid, sid) values (100, 53);
 
 insert into Manages (uid, rid) values (61, 1);
 insert into Manages (uid, rid) values (62, 1);
