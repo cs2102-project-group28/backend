@@ -3,8 +3,8 @@ from flask_cors import CORS
 import database as db
 import user_query as uqr
 import menu_query as mqr
+import manager_query as mngqr
 import promotion_query as pqr
-import json
 from url_converter import ListConverter
 
 app = Flask(__name__, static_folder='static', template_folder='static/build')
@@ -76,9 +76,7 @@ def view_menu(username):
         location = tuple(menu['location'])
         fName = tuple(menu['fName'])
         fCategory = tuple(menu['fCategory'])
-        return json.dumps({
-            'data': mqr.get_menu(cursor, rName, rCategory, location, fName, fCategory)
-        }), 200
+        return {'data': mqr.get_menu(cursor, rName, rCategory, location, fName, fCategory)}, 200
 
 
 @app.route('/customer/<username>/order/checkout/<rid>/<fid>', methods=['POST'])
@@ -106,34 +104,55 @@ def past_order(username):
 def search_food(username, item):
     if request.method == 'POST':
         item = str.lower(item)
-        return json.dumps({
-            'data': mqr.get_food(cursor, item)
-        }), 200
+        return {'data': mqr.get_food(cursor, item)}, 200
 
 
 @app.route('/customer/<username>/search-restaurant/<restaurant>', methods=['POST'])
 def search_restaurants(username, restaurant):
     if request.method == 'POST':
         restaurant = str.lower(restaurant)
-        return json.dumps({
-            'data': mqr.get_restaurant(cursor, restaurant)
-        }), 200
+        return {'data': mqr.get_restaurant(cursor, restaurant)}, 200
 
 
 @app.route('/staff/<username>/summary/promotion/<startdate>/<enddate>', methods=['POST'])
 @app.route('/staff/<username>/summary/promotion/<startdate>', methods=['POST'])
 def summary_promotion(username, startdate, enddate=None):
     if request.method == 'POST':
-        data = pqr.summary(cursor, startdate, enddate)
+        data = pqr.summary(cursor, startdate, enddate, username)
         if len(data) == 0:
             return {'message': 'No promotions within this date'}, 400
         return {'data': data}, 200
 
 
-@app.route('/staff/<username>/summary/order', methods=['POST'])
-def view_monthly_order(username):
+@app.route('/staff/<username>/summary/order/<month>/<year>', methods=['POST'])
+def view_monthly_order(username, month, year):
     if request.method == 'POST':
-        return mqr.view_monthly_order(cursor), 200
+        return mqr.view_monthly_order(cursor, username, month, year), 200
+
+
+@app.route('/manager/<username>/month-summary/<month>/<year>', methods=['POST'])
+def month_summary(username, month, year):
+    if request.method == 'POST':
+        return mngqr.month_summary(cursor, month, year), 200
+
+
+@app.route('/manager/<username>/order/<area>/<starttime>/<endtime>', methods=['POST'])
+def order_summary(username, area, starttime, endtime):
+    if request.method == 'POST':
+        data = mngqr.order_summary(cursor, area, starttime, endtime)
+        no_orders = len(data)
+        oid = [item[0] for item in data]
+        return {
+            'number of order': no_orders,
+            'oid': oid
+        }, 200
+
+
+@app.route('/manager/<username>/rider/<month>/<year>', methods=['POST'])
+def rider_summary(username, month, year):
+    if request.method == 'POST':
+        data = mngqr.rider_summary(cursor, month, year)
+        return {'data': data}, 200
 
 
 if __name__ == '__main__':

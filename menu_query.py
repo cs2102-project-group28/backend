@@ -1,5 +1,4 @@
 from database import select_query
-from datetime import date
 
 
 def get_menu(cursor, rName, rCategory, location, fName, fCategory):
@@ -83,23 +82,31 @@ def checkout(cursor, rid, fid):
     }
 
 
-def view_monthly_order(cursor):
-    today_datetime = date.today()
+def view_monthly_order(cursor, username, month, year):
+    uid = select_query(cursor,
+                       'select uid from users where username = %s;',
+                       (username,))[0][0]
     all_order = select_query(cursor,
                              'select count(*), sum(price) '
                              'from orders join menu using(rid, fid) '
-                             'where (select extract(month from orderTime)) = %s;',
-                             (today_datetime.month,))[0]
+                             'join staffs using(uid) '
+                             'where (select extract(month from orderTime)) = %s '
+                             'and (select extract(year from orderTime)) = %s '
+                             'and uid = %s;',
+                             (month, year, uid))[0]
     top_5 = select_query(cursor,
                          'select fName, rName, location '
                          'from orders join menu using(rid, fid) '
                          'join restaurants using(rid) '
                          'join foodItems using(fid) '
-                         'group by (fName, rName, location, orderTime) '
+                         'join manages using(rid) '
+                         'group by (fName, rName, location, orderTime, uid) '
                          'having (select extract(month from orderTime)) = %s '
+                         'and (select extract(year from orderTime)) = %s '
+                         'and uid = %s '
                          'order by sum(noOfOrders) desc '
                          'limit 5;',
-                         (today_datetime.month,))
+                         (month, year, uid))
     return {
         'total orders': all_order[0],
         'total cost': all_order[1],

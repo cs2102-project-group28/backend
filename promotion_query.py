@@ -1,23 +1,30 @@
 from database import select_query
 
 
-def summary(cursor, startdate, enddate):
+def summary(cursor, startdate, enddate, username):
+    uid = select_query(cursor,
+                       'select uid from users where username = %s;',
+                       (username,))[0][0]
     if enddate is None:
         all_food = select_query(cursor,
                                 'select pid, startDate, endDate, rid, fid, count(*), sum(price) '
                                 'from promotions join promotes using(pid) '
                                 'join orders using(rid, fid) '
-                                'join menu using(rid, fid)'
-                                'group by (pid, startDate, endDate, rid, fid, orderTime) '
-                                'having date(orderTime) >= %s;', (startdate,))
+                                'join menu using(rid, fid) '
+                                'join manages using(rid) '
+                                'group by (pid, startDate, endDate, rid, fid, orderTime, uid) '
+                                'having date(orderTime) >= %s and uid = %s;',
+                                (startdate, uid))
     else:
         all_food = select_query(cursor,
                                 'select pid, startDate, endDate, rid, fid, count(*), sum(price) '
                                 'from promotions join promotes using(pid) '
                                 'join orders using(rid, fid) '
-                                'join menu using(rid, fid)'
-                                'group by (pid, startDate, endDate, rid, fid, orderTime) '
-                                'having date(orderTime) >= %s and date(orderTime) <= %s;', (startdate, enddate))
+                                'join menu using(rid, fid) '
+                                'join manages using(rid) '
+                                'group by (pid, startDate, endDate, rid, fid, orderTime, uid) '
+                                'having date(orderTime) >= %s and date(orderTime) <= %s and uid = %s;',
+                                (startdate, enddate, uid))
     return [{
         'pid': item[0],
         'startDate': item[1].strftime('%d/%m/%Y'),
