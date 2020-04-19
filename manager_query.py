@@ -1,4 +1,5 @@
 from database import select_query
+import time
 
 
 def month_summary(cursor, month, year):
@@ -87,17 +88,23 @@ def part_time_summary(cursor, month, year):
                         'group by uid, month, year), '
                         ''
                         'RiderWork as '
-                        '(select uid, salary, '
+                        '(select uid, psalary, '
                         'sum(EXTRACT(HOUR FROM endTime) - EXTRACT(HOUR FROM startTime)) as totalTime '
                         'from parttimeriders join riders using(uid) '
                         'join weeklyworks using(uid) '
                         'join schedules using(sid) '
-                        'group by uid, salary) '
+                        'group by uid, psalary), '
                         ''
-                        'select uid, numRating, totalRating, numOrder, salary, totalTime '
+                        'RiderDeliver as '
+                        '(select uid, sum(completeTime - departTime) as deliverTime '
+                        'from delivers '
+                        'group by (uid))'
+                        ''
+                        'select uid, numRating, totalRating, numOrder, psalary, totalTime, deliverTime '
                         'from RiderRating right join RiderOrder '
                         'using(uid, month, year) '
                         'join RiderWork using(uid) '
+                        'join RiderDeliver using(uid) '
                         'where month = %s and year = %s;',
                         (month, year,))
     return [
@@ -109,6 +116,7 @@ def part_time_summary(cursor, month, year):
             'no. order': item[3],
             'salary': item[4],
             'total time': item[5],
+            'average deliver time': str(time.strftime('%H:%M:%S', time.gmtime(round((item[6] / item[3]).total_seconds()))))
         }
         for item in data
     ]
@@ -135,17 +143,23 @@ def full_time_summary(cursor, month, year):
                         'group by uid, month, year), '
                         ''
                         'RiderWork as '
-                        '(select uid, salary, '
+                        '(select uid, fsalary, '
                         'sum(EXTRACT(HOUR FROM endTime) - EXTRACT(HOUR FROM startTime)) as totalTime '
                         'from fulltimeriders join riders using(uid) '
                         'join monthlyworks using(uid) '
                         'join schedules using(sid) '
-                        'group by uid, salary) '
+                        'group by uid, fsalary), '
                         ''
-                        'select uid, numRating, totalRating, numOrder, salary, totalTime '
+                        'RiderDeliver as '
+                        '(select uid, sum(completeTime - departTime) as deliverTime '
+                        'from delivers '
+                        'group by (uid))'
+                        ''
+                        'select uid, numRating, totalRating, numOrder, fsalary, totalTime, deliverTime '
                         'from RiderRating right join RiderOrder '
                         'using(uid, month, year) '
                         'join RiderWork using(uid) '
+                        'join RiderDeliver using(uid) '
                         'where month = %s and year = %s;',
                         (month, year,))
     return [
@@ -156,7 +170,8 @@ def full_time_summary(cursor, month, year):
             'average rating': item[2] / item[1] if item[1] else None,
             'no. order': item[3],
             'salary': item[4],
-            'total time': item[5] * 4,
+            'total time': item[5],
+            'average deliver time': str(time.strftime('%H:%M:%S', time.gmtime(round((item[6] / item[3]).total_seconds()))))
         }
         for item in data
     ]
