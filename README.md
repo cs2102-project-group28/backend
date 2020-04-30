@@ -52,7 +52,7 @@
     ```
     + return code: 200 for OK and 400 for fail
  
-###Customer function
+### Customer function
 #### View restaurants and food
 - `/customer/<username>/order`
     ```text
