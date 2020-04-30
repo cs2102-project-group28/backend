@@ -155,7 +155,7 @@ def rider_summary(username, month, year):
 def summary(username, month, year):
     if request.method == 'POST':
         data = rqr.summary(cursor, username, month, year)
-        return {'data': data}, 200
+        return data, 200
 
 
 if __name__ == '__main__':
