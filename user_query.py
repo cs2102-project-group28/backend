@@ -1,4 +1,5 @@
 from database import select_query, update_query
+from datetime import date
 
 
 def login(cursor, username, password):
@@ -38,7 +39,8 @@ def login(cursor, username, password):
 
 
 def get_profile(cursor, username, phone, user_type, reward_points):
-    phone = select_query(cursor, 'select phone from users where username = %s', username)
+    if len(phone) == 0:
+        phone = select_query(cursor, 'select phone from users where username = %s', username)
     customer_query = select_query(cursor, 'select username from customers join users using(uid) where username = %s',
                                   username)
     if len(customer_query) != 0:
@@ -55,7 +57,7 @@ def get_profile(cursor, username, phone, user_type, reward_points):
                                  username)
     if len(manager_query) != 0:
         user_type = 'manager'
-    if user_type == 'customer':
+    if user_type == 'customer' and len(reward_points) == 0:
         reward_points = select_query(cursor, 'select rewardPoints from customers join users using(uid) '
                                              'where username = %s', username)
         return {'userName': username, 'phone': phone, 'userType': user_type, 'rewardPoints': reward_points}
@@ -82,8 +84,10 @@ def register(connection, cursor, username, password, phone, user_type):
                  'insert into Users (uid, username, password, phone) values '
                  '((select count(*) from Users) + 1, %s, %s, %s);', (username, password, (phone,)))
     if user_type == 'customer':
+        today = date.today()
         update_query(connection, cursor,
-                     'insert into Customers (uid, rewardPoints) values ((select count(*) from Users), 0);')
+                     'insert into Customers (uid, rewardPoints, registerDate) values '
+                     '((select count(*) from Users), 0, %s);', (today,))
     if user_type == 'rider':
         update_query(connection, cursor,
                      'insert into Riders (uid) values ((select count(*) from Users));')
@@ -102,3 +106,20 @@ def verify_customer(cursor, username, creditcard, cvv):
                                                      'where username = %s;', (username,))[0]
     if creditcard != verified_creditcard or cvv != verified_cvv:
         raise Exception
+
+
+def customer_update(connection, cursor, username, card_number=None, cvv=None):
+    uid = select_query(cursor,
+                       'select uid from users where username = %s', (username,))[0][0]
+    if card_number is None:
+        update_query(connection, cursor,
+                     'update customers set cvv = %s where uid = %s;',
+                     (cvv, uid))
+    elif cvv is None:
+        update_query(connection, cursor,
+                     'update customers set creditCardNumber = %s where uid = %s;',
+                     (card_number, uid))
+    else:
+        update_query(connection, cursor,
+                     'update customers set creditCardNumber = %s, cvv = %s where uid = %s;',
+                     (card_number, cvv, uid))
