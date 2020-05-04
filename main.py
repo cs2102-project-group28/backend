@@ -25,16 +25,15 @@ def login():
         return pos, 200
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['POST'])
 def register():
     if request.method == 'POST':
         new_user = request.json
         username = new_user['username']
         password = new_user['password']
-        phone = new_user['phone']
+        phone = int(new_user['phone'])
         user_type = new_user['userType']
-        if new_user['username'] == '' or new_user['password'] == '' or new_user['phone'] == '' \
-                or new_user['userType'] == '':
+        if new_user['username'] == '' or new_user['password'] == '' or new_user['userType'] == '':
             return {'message': 'Some fields are empty'}, 400
         uqr.register(connection, cursor, username, password, phone, user_type)
         return Response(status=200)
@@ -53,6 +52,16 @@ def update(username):
         else:
             uqr.update(connection, cursor, username, new_user['password'], new_user['phone'])
         return Response(status=200)
+
+
+@app.route('/<username>/profile', methods=['POST'])
+def view_profile(username):
+    if request.method == 'POST':
+        user = request.json
+        phone = int(user['phone'])
+        user_type = user['userType']
+        reward_points = int(user['rewardPoints'])
+        return {'data': uqr.get_profile(cursor, username, phone, user_type, reward_points)}, 200
 
 
 @app.route('/<username>/update/customer', methods=['POST'])
