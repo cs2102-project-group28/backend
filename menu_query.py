@@ -1,4 +1,4 @@
-from database import select_query
+from database import select_query, update_query
 
 
 def get_menu(cursor, rName, rCategory, location, fName, fCategory):
@@ -64,7 +64,7 @@ def get_restaurant(cursor, restaurant):
     ]
 
 
-def checkout(cursor, rid, fid):
+def checkout(cursor, rid, fid, pid):
     oid, food_price = select_query(cursor,
                                    "select oid, sum(price) from menu join orders "
                                    "using(rid, fid) "
@@ -169,3 +169,26 @@ def view_past_order(cursor, username, startdate, enddate):
             'review': item[4]
         } for item in order
     ]
+
+
+def place_order(connection, cursor, username, rid, fid, total_price):
+    availability = select_query(cursor,
+                                'select availability '
+                                'from menu '
+                                'where rid = %s and fid = %s;',
+                                (rid, fid))[0][0]
+    if not availability:
+        raise Exception
+    update_query(connection, cursor,
+                 'update menu '
+                 'set noOfOrders = noOfOrders + 1 '
+                 'where rid = %s and fid = %s;',
+                 (rid, fid))
+    update_query(connection, cursor,
+                 'update customers '
+                 'set rewardPoints = rewardPoints + round(%s) '
+                 'where uid = ('
+                 'select uid '
+                 'from customers join users using(uid) '
+                 'where username = %s);',
+                 (total_price, username))
