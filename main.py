@@ -31,7 +31,7 @@ def register():
         new_user = request.json
         username = new_user['username']
         password = new_user['password']
-        phone = int(new_user['phone'])
+        phone = new_user['phone']
         user_type = new_user['userType']
         if new_user['username'] == '' or new_user['password'] == '' or new_user['userType'] == '':
             return {'message': 'Some fields are empty'}, 400
@@ -132,6 +132,33 @@ def summary_promotion(username, startdate, enddate=None):
         if len(data) == 0:
             return {'message': 'No promotions within this time for your restaurant'}, 400
         return {'data': data}, 200
+
+
+@app.route('/manager/<username>/create/promotion', methods=['POST'])
+def create_promotion(username):
+    if request.method == 'POST':
+        new_promotion = request.json
+        restaurant = new_promotion['restaurant']
+        food_item = new_promotion['foodItem']
+        end_date = new_promotion['endDate']
+        start_date = new_promotion['startDate']
+        promotion_type = new_promotion['promotionType']
+        percent = new_promotion['percent']
+        max_amount = new_promotion['maxAmount']
+        flat_amount = new_promotion['flatAmount']
+        min_amount = new_promotion['minAmount']
+        pqr.create_promotion(restaurant, food_item, end_date, start_date, promotion_type, percent, max_amount
+                             , flat_amount, min_amount)
+        return Response(status=200)
+
+
+@app.route('manager/<username>/delete/promotion', methods=['POST'])
+def delete_promotion(username):
+    if request.method == 'POST':
+        promotion = request.json
+        pid = promotion['pid']
+        pqr.delete_promotion(connection, cursor, pid)
+        return Response(status=200)
 
 
 @app.route('/staff/<username>/summary/order/<month>/<year>', methods=['POST'])
