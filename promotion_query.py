@@ -168,11 +168,11 @@ def create_promotion(connection, cursor, restaurant, foodItem, endDate, startDat
 
 
 def delete_promotion(connection, cursor, pid):
-    update_query(connection, cursor, 'delete from Promotes where pid = %s', (pid,))
-    update_query(connection, cursor, 'delete from Promotions where pid = %s', (pid, ))
-    percent_query = select_query(cursor, 'select 1 from Promotions join Percentage using(pid) where pid = %s', pid)
+    update_query(connection, cursor, 'delete from Promotes where pid = %s;', (pid,))
+    update_query(connection, cursor, 'delete from Promotions where pid = %s;', (pid, ))
+    percent_query = select_query(cursor, 'select 1 from Promotions join Percentage using(pid) where pid = %s;', pid)
     if len(percent_query) != 0:
-        update_query(connection, cursor, 'delete from Percentage where pid = %s', pid)
-    flat_query = select_query(cursor, 'select 1 from Promotions join Flat using(pid) where pid = %s', pid)
+        update_query(connection, cursor, 'delete from Percentage where pid = %s;', pid)
+    flat_query = select_query(cursor, 'select 1 from Promotions join Flat using(pid) where pid = %s;', pid)
     if len(flat_query) != 0:
-        update_query(connection, cursor, 'delete from Flat where pid = %s', pid)
+        update_query(connection, cursor, 'delete from Flat where pid = %s;', pid)
