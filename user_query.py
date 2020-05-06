@@ -13,11 +13,21 @@ def login(cursor, username, password):
         }
     ret = select_query(cursor,
                        'select username, password from riders join users using(uid) '
+                       'join parttimeriders using(uid) '
                        'where username = %s and password = %s',
                        (username, password))
     if len(ret) != 0:
         return {
-            'position': 'rider',
+            'position': 'partTime rider',
+        }
+    ret = select_query(cursor,
+                       'select username, password from riders join users using(uid) '
+                       'join fulltimeriders using(uid) '
+                       'where username = %s and password = %s',
+                       (username, password))
+    if len(ret) != 0:
+        return {
+            'position': 'fullTime rider',
         }
     ret = select_query(cursor,
                        'select username, password from staffs join users using(uid) '
@@ -79,18 +89,26 @@ def update(connection, cursor, username, password=None, phone=None):
                      (password, (phone,), username))
 
 
-def register(connection, cursor, username, password, phone, user_type):
+def register(connection, cursor, username, password, phone, user_type, rider_type):
+    uid = select_query(cursor,
+                       'select count(*) from users + 1')[0][0]
     update_query(connection, cursor,
                  'insert into Users (uid, username, password, phone) values '
-                 '((select count(*) from Users) + 1, %s, %s, %s);', (username, password, (phone,)))
+                 '(%s, %s, %s, %s);', (uid, username, password, (phone,)))
     if user_type == 'customer':
         today = date.today()
         update_query(connection, cursor,
                      'insert into Customers (uid, rewardPoints, registerDate) values '
-                     '((select count(*) from Users), 0, %s);', (today,))
+                     '(%s, 0, %s);', (uid, today))
     if user_type == 'rider':
         update_query(connection, cursor,
-                     'insert into Riders (uid) values ((select count(*) from Users));')
+                     'insert into Riders (uid) values (%s);', (uid,))
+        if rider_type == 'partTime':
+            update_query(connection, cursor,
+                         'insert into PartTimeRiders (uid, psalary) values (%s, 12);', (uid,))
+        if rider_type == 'fullTime':
+            update_query(connection, cursor,
+                         'insert into FullTimeRiders (uid, fsalary) values (%s, 40);', (uid,))
     if user_type == 'staff':
         update_query(connection, cursor,
                      'insert into Staffs (uid) values ((select count(*) from Users));')
@@ -104,6 +122,7 @@ def verify_customer(cursor, username, creditcard, cvv):
                                                      'select creditCardNumber, cvv from '
                                                      'customers join users using(uid) '
                                                      'where username = %s;', (username,))[0]
+    print(creditcard != verified_creditcard or cvv != verified_cvv)
     if creditcard != verified_creditcard or cvv != verified_cvv:
         raise Exception
 
