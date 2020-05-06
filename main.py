@@ -89,8 +89,8 @@ def view_menu(username):
         return {'data': mqr.get_menu(cursor, rName, rCategory, location, fName, fCategory)}, 200
 
 
-@app.route('/customer/<username>/order/checkout/<rid>/<fid>/<pid>', methods=['POST'])
-def checkout(username, rid, fid, pid):
+@app.route('/customer/<username>/order/checkout/<rid>/<list:fid>/<list:quantity>/<ptype>/<pid>', methods=['POST'])
+def checkout(username, rid, fid, quantity, ptype, pid):
     if request.method == 'POST':
         customer = request.json
         if customer['payment method'] == 'credit card':
@@ -100,23 +100,16 @@ def checkout(username, rid, fid, pid):
                 uqr.verify_customer(cursor, username, creditcard, cvv)
             except Exception:
                 return {'message': 'Credit card or cvv is not correct'}, 400
-        return mqr.checkout(cursor, rid, fid, pid), 200
-
-
-@app.route('/customer/<username>/order/place-order/<rid>/<fid>/<total_price>', methods=['POST'])
-def place_order(username, rid, fid, total_price):
-    if request.method == 'POST':
         try:
-            mqr.place_order(connection, cursor, username, rid, fid, total_price)
+            return mqr.checkout(connection, cursor, username, rid, fid, quantity, ptype, pid, customer['location']), 200
         except Exception:
             return {'message': 'This item is no long available'}, 400
-        return Response(status=200)
 
 
 @app.route('/customer/<username>/view-promotion', methods=['POST'])
 def view_promotion(username):
     if request.method == 'POST':
-        return {'data': uqr.view_promotion(cursor)}, 200
+        return {'data': pqr.view_promotion(cursor)}, 200
 
 
 @app.route('/customer/<username>/past-order/date', methods=['POST'])
@@ -185,5 +178,4 @@ def summary(username, month, year):
 
 if __name__ == '__main__':
     connection, cursor = db.init()
-    # app.run(host='0.0.0.0', port=5000, debug=True)
-    mqr.place_order(connection, cursor, 'pwheatcroft0', '1', '1', '20')
+    app.run(host='0.0.0.0', port=5000, debug=True)

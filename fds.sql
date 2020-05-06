@@ -804,7 +804,7 @@ CREATE TRIGGER hours_trigger
 
 CREATE OR REPLACE FUNCTION menu_availability_constraint() RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW.noOfOrders = NEW.dayLimit THEN
+    IF NEW.noOfOrders >= NEW.dayLimit THEN
         NEW."availability" := FALSE;
     END IF;
     RETURN NEW;

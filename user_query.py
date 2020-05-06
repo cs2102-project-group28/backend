@@ -104,6 +104,7 @@ def verify_customer(cursor, username, creditcard, cvv):
                                                      'select creditCardNumber, cvv from '
                                                      'customers join users using(uid) '
                                                      'where username = %s;', (username,))[0]
+    print(creditcard != verified_creditcard or cvv != verified_cvv)
     if creditcard != verified_creditcard or cvv != verified_cvv:
         raise Exception
 
@@ -123,53 +124,3 @@ def customer_update(connection, cursor, username, card_number=None, cvv=None):
         update_query(connection, cursor,
                      'update customers set creditCardNumber = %s, cvv = %s where uid = %s;',
                      (card_number, cvv, uid))
-
-
-def view_promotion(cursor):
-    today = date.today()
-    flat = select_query(cursor,
-                        'select pid, startDate, endDate, flatAmount, minAmount, rid, fid, rName, fName '
-                        'from promotions join flat using(pid) '
-                        'join promotes using(pid) '
-                        'join restaurants using(rid) '
-                        'join FoodItems using(fid) '
-                        'where startDate <= %s and endDate >= %s;', (today, today))
-    update_flat = [
-        {
-            'type': 'flat',
-            'pid': item[0],
-            'startDate': item[1],
-            'endDate': item[2],
-            'flatAmount': item[3],
-            'minAmount': item[4],
-            'rid': item[5],
-            'fid': item[6],
-            'rName': item[7],
-            'fName': item[8]
-        }
-        for item in flat
-    ]
-
-    percentage = select_query(cursor,
-                              'select pid, startDate, endDate, percent, maxAmount, rid, fid, rName, fName '
-                              'from promotions join percentage using(pid) '
-                              'join promotes using(pid) '
-                              'join restaurants using(rid) '
-                              'join FoodItems using(fid) '
-                              'where startDate <= %s and endDate >= %s;', (today, today))
-    update_percentage = [
-        {
-            'type': 'percentage',
-            'pid': item[0],
-            'startDate': item[1],
-            'endDate': item[2],
-            'percent': item[3],
-            'maxAmount': item[4],
-            'rid': item[5],
-            'fid': item[6],
-            'rName': item[7],
-            'fName': item[8]
-        }
-        for item in percentage
-    ]
-    return update_flat + update_percentage

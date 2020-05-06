@@ -1,4 +1,5 @@
 from database import select_query
+from datetime import date
 
 
 def get_flat(cursor, uid, startdate, enddate):
@@ -134,3 +135,53 @@ def summary(cursor, startdate, enddate, username):
     flat_promotion = get_flat(cursor, uid, startdate, enddate)
     percentage_promotion = get_percentage(cursor, uid, startdate, enddate)
     return flat_promotion + percentage_promotion
+
+
+def view_promotion(cursor):
+    today = date.today()
+    flat = select_query(cursor,
+                        'select pid, startDate, endDate, flatAmount, minAmount, rid, fid, rName, fName '
+                        'from promotions join flat using(pid) '
+                        'join promotes using(pid) '
+                        'join restaurants using(rid) '
+                        'join FoodItems using(fid) '
+                        'where startDate <= %s and endDate >= %s;', (today, today))
+    update_flat = [
+        {
+            'type': 'flat',
+            'pid': item[0],
+            'startDate': item[1],
+            'endDate': item[2],
+            'flatAmount': item[3],
+            'minAmount': item[4],
+            'rid': item[5],
+            'fid': item[6],
+            'rName': item[7],
+            'fName': item[8]
+        }
+        for item in flat
+    ]
+
+    percentage = select_query(cursor,
+                              'select pid, startDate, endDate, percent, maxAmount, rid, fid, rName, fName '
+                              'from promotions join percentage using(pid) '
+                              'join promotes using(pid) '
+                              'join restaurants using(rid) '
+                              'join FoodItems using(fid) '
+                              'where startDate <= %s and endDate >= %s;', (today, today))
+    update_percentage = [
+        {
+            'type': 'percentage',
+            'pid': item[0],
+            'startDate': item[1],
+            'endDate': item[2],
+            'percent': item[3],
+            'maxAmount': item[4],
+            'rid': item[5],
+            'fid': item[6],
+            'rName': item[7],
+            'fName': item[8]
+        }
+        for item in percentage
+    ]
+    return update_flat + update_percentage
