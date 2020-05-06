@@ -33,9 +33,10 @@ def register():
         password = new_user['password']
         phone = int(new_user['phone'])
         user_type = new_user['userType']
+        rider_type = new_user['riderType']
         if new_user['username'] == '' or new_user['password'] == '' or new_user['userType'] == '':
             return {'message': 'Some fields are empty'}, 400
-        uqr.register(connection, cursor, username, password, phone, user_type)
+        uqr.register(connection, cursor, username, password, phone, user_type, rider_type)
         return Response(status=200)
 
 
@@ -89,8 +90,8 @@ def view_menu(username):
         return {'data': mqr.get_menu(cursor, rName, rCategory, location, fName, fCategory)}, 200
 
 
-@app.route('/customer/<username>/order/checkout/<rid>/<list:fid>/<list:quantity>/<ptype>/<pid>', methods=['POST'])
-def checkout(username, rid, fid, quantity, ptype, pid):
+@app.route('/customer/<username>/order/checkout/<rid>/<list:fid>/<list:quantity>/promo', methods=['POST'])
+def checkout(username, rid, fid, quantity):
     if request.method == 'POST':
         customer = request.json
         if customer['payment method'] == 'credit card':
@@ -101,9 +102,11 @@ def checkout(username, rid, fid, quantity, ptype, pid):
             except Exception:
                 return {'message': 'Credit card or cvv is not correct'}, 400
         try:
+            ptype = request.args.get('ptype')
+            pid = request.args.get('pid')
             return mqr.checkout(connection, cursor, username, rid, fid, quantity, ptype, pid, customer['location']), 200
-        except Exception:
-            return {'message': 'This item is no long available'}, 400
+        except Exception as e:
+            return {'message': str(e)}, 400
 
 
 @app.route('/customer/<username>/view-promotion', methods=['POST'])
@@ -124,6 +127,35 @@ def search_food(username, item):
     if request.method == 'POST':
         item = str.lower(item)
         return {'data': mqr.get_food(cursor, item)}, 200
+
+
+@app.route('/customer/<username>/post-review/<oid>', methods=['POST'])
+def review_order(username, oid):
+    if request.method == 'POST':
+        review = request.json
+        content = review['content']
+        mqr.review_order(connection, cursor, username, oid, content)
+        return Response(status=200)
+
+
+@app.route('/customer/<username>/view-review/<rid>', methods=['POST'])
+def view_review(username, rid):
+    if request.method == 'POST':
+        return {"data": mqr.view_review(cursor, rid)}, 200
+
+
+@app.route('/customer/<username>/rate-deliver/<oid>/<rating>', methods=['POST'])
+def rate_deliver(username, oid, rating):
+    if request.method == 'POST':
+        mqr.rate_deliver(connection, cursor, oid, rating)
+        return Response(status=200)
+
+
+@app.route('/customer/<username>/recent-locations', methods=['POST'])
+def recent_locations(username):
+    if request.method == 'POST':
+        locations = mqr.get_recent_location(cursor, username)
+        return {"data": locations}, 200
 
 
 @app.route('/customer/<username>/search-restaurant/<restaurant>', methods=['POST'])
@@ -174,6 +206,47 @@ def summary(username, month, year):
     if request.method == 'POST':
         data = rqr.summary(cursor, username, month, year)
         return data, 200
+
+
+@app.route('/rider/<username>/set-deliver-depart/<oid>', methods=['POST'])
+def set_deliver_depart_time(username, oid):
+    if request.method == 'POST':
+        rqr.set_deliver_depart_time(connection, cursor, username, oid)
+        return Response(status=200)
+
+
+@app.route('/rider/<username>/set-deliver-complete/<oid>', methods=['POST'])
+def set_deliver_complete_time(username, oid):
+    if request.method == 'POST':
+        rqr.set_deliver_complete_time(connection, cursor, username, oid)
+        return Response(status=200)
+
+
+@app.route('/rider/part-time/<username>/add-schedule/<list:sid>', methods=['POST'])
+def add_schedule_part_time(username, sid):
+    if request.method == 'POST':
+        try:
+            rqr.add_schedule_part_time(connection, cursor, username, sid)
+            return Response(status=200)
+        except Exception as e:
+            return {"message": str(e)}, 400
+
+
+@app.route('/rider/part-time/<username>/delete-schedule/<list:sid>', methods=['POST'])
+def delete_schedule(username, sid):
+    if request.method == 'POST':
+        try:
+            rqr.delete_schedule_part_time(connection, cursor, username, sid)
+            return Response(status=200)
+        except Exception as e:
+            return {"message": str(e)}, 400
+
+
+@app.route('/rider/full-time/<username>/add-schedule/<startday>/<endday>/<shift>', methods=['POST'])
+def add_schedule_full_time(username, startday, endday, shift):
+    if request.method == 'POST':
+        rqr.add_schedule_full_time(connection, cursor, username, int(startday), int(endday), int(shift))
+        return Response(status=200)
 
 
 if __name__ == '__main__':

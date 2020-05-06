@@ -770,24 +770,30 @@ DECLARE
 	totalHours		INTEGER;
 	additional		INTEGER;
 BEGIN
-	SELECT SUM(EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime)) INTO totalHours
-		FROM WeeklyWorks w JOIN Riders r USING (uid)
-		JOIN Schedules s USING (sid)
-		WHERE r.uid = NEW.uid;
-	IF (TG_OP = 'INSERT') THEN 
+	IF (TG_OP = 'INSERT') THEN
+        SELECT SUM(EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime)) INTO totalHours
+            FROM WeeklyWorks w JOIN Riders r USING (uid)
+            JOIN Schedules s USING (sid)
+            WHERE r.uid = NEW.uid;
 		SELECT EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime) INTO additional
 			FROM Schedules s
 			WHERE s.sid = NEW.sid;
 		IF totalHours + additional > 48 THEN
 			RAISE exception 'Maximum hours to work per week is 48' ;
+			RETURN NULL;
 		END IF;
 		RETURN NEW;
-	ELSIF (TG_OP = 'DELETE') THEN 
+	ELSIF (TG_OP = 'DELETE') THEN
+        SELECT SUM(EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime)) INTO totalHours
+            FROM WeeklyWorks w JOIN Riders r USING (uid)
+            JOIN Schedules s USING (sid)
+            WHERE r.uid = OLD.uid;
 		SELECT EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime) INTO additional
 			FROM Schedules s
-			WHERE s.sid = NEW.sid;
+			WHERE s.sid = OLD.sid;
 		IF totalHours - additional < 10 THEN
 			RAISE exception 'Minimum hours to work per week is 10' ;
+			RETURN NULL;
 		END IF;
 		RETURN OLD;
 	END IF;
@@ -799,6 +805,7 @@ DROP TRIGGER IF EXISTS hours_trigger ON WeeklyWorks;
 CREATE TRIGGER hours_trigger
 	BEFORE INSERT OR DELETE
 	ON WeeklyWorks
+	DEFERRABLE INITIALLY DEFERRED
 	FOR EACH ROW EXECUTE FUNCTION check_hours_constraint () ;
 
 

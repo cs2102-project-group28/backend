@@ -73,7 +73,7 @@ def checkout(connection, cursor, username, rid, fid, quantity, ptype, pid, locat
                                 'where rid = %s and fid in %s;',
                                 (rid, fid))[0][0]
     if not availability:
-        raise Exception
+        raise Exception('This item is not available')
     now = datetime.now()
     oid = select_query(cursor,
                        'select count(*) + 1 from orders;')[0][0]
@@ -104,6 +104,12 @@ def checkout(connection, cursor, username, rid, fid, quantity, ptype, pid, locat
                                'from contains join orders using(oid) '
                                'join menu using(rid, fid) '
                                'where oid = %s', (oid,))[0][0]
+    min_spent = select_query(cursor,
+                             'select minSpent '
+                             'from restaurants join orders using(rid) '
+                             'where oid = %s;', (oid,))[0][0]
+    if total_price < min_spent:
+        raise Exception('Minimum spent is not met')
     discount = 0
     if ptype == 'flat':
         flat_promo = select_query(cursor,
@@ -159,13 +165,13 @@ def checkout(connection, cursor, username, rid, fid, quantity, ptype, pid, locat
                              'where (completeTime is null or completeTime > %s) and d.uid = w.uid'
                              ');',
                              (now.strftime('%H:%M'), now.strftime('%H:%M'), convert_date(now.strftime("%A")), now))
-    print(part_time + full_time)
     rider = (part_time + full_time)[0][0]
     update_query(connection, cursor,
                  'insert into delivers (uid, oid, startTime, deliverCost, location) '
                  'values (%s, %s, %s, 10, %s);',
                  (rider, oid, now, location))
     return {
+        'oid': oid,
         'food price': total_price,
         'discount': discount,
         'deliver cost': 10,
@@ -261,3 +267,44 @@ def view_past_order(cursor, username, startdate, enddate):
             'review': item[4]
         } for item in order
     ]
+
+
+def review_order(connection, cursor, username, oid, content):
+    update_query(connection, cursor,
+                 'update orders '
+                 'set review = %s '
+                 'where oid = %s and cid = ('
+                 'select uid from users where username = %s);',
+                 (content, oid, username))
+
+
+def view_review(cursor, rid):
+    review = select_query(cursor,
+                          'select username, orderTime, review '
+                          'from orders join users on (cid = uid) '
+                          'where rid = %s and review is not null;', (rid,))
+    return [
+        {
+            'username': item[0],
+            'orderTime': item[1].strftime("%d/%m/%Y %H:%M:%S"),
+            'review': item[2]
+        }
+        for item in review
+    ]
+
+
+def rate_deliver(connection, cursor, oid, rating):
+    update_query(connection, cursor,
+                 'update delivers '
+                 'set rating = %s '
+                 'where oid = %s;', (rating, oid))
+
+
+def get_recent_location(cursor, username):
+    locations = select_query(cursor,
+                             'select distinct location '
+                             'from users join orders on(uid = cid) '
+                             'join delivers using(oid) '
+                             'order by startTime desc '
+                             'limit 5;')
+    return locations
