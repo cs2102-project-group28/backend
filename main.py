@@ -175,6 +175,27 @@ def summary_promotion(username, startdate, enddate=None):
         return {'data': data}, 200
 
 
+@app.route('/staff/<username>/add-food/<fName>/<fCategory>', methods=['POST'])
+def add_food(username, fName, fCategory):
+    if request.method == 'POST':
+        mqr.add_food(connection, cursor, username, fName, fCategory)
+        return Response(status=200)
+
+
+@app.route('/staff/<username>/update-menu', methods=['POST'])
+def update_menu(username):
+    if request.method == 'POST':
+        updated = request.json
+        min_spent = updated['minSpent']
+        fid = updated['fid']
+        avai = updated['availability']
+        day_limit = updated['dayLimit']
+        no_orders = updated['noOfOrders']
+        price = updated['price']
+        mqr.update_menu(connection, cursor, username, min_spent, avai, day_limit, no_orders, price, fid)
+        return Response(status=200)
+
+
 @app.route('/staff/<username>/summary/order/<month>/<year>', methods=['POST'])
 def view_monthly_order(username, month, year):
     if request.method == 'POST':
@@ -226,7 +247,7 @@ def set_deliver_complete_time(username, oid):
 def add_schedule_part_time(username, sid):
     if request.method == 'POST':
         try:
-            rqr.add_schedule_part_time(connection, cursor, username, sid)
+            rqr.add_schedule_part_time(username, sid)
             return Response(status=200)
         except Exception as e:
             return {"message": str(e)}, 400
@@ -252,3 +273,4 @@ def add_schedule_full_time(username, startday, endday, shift):
 if __name__ == '__main__':
     connection, cursor = db.init()
     app.run(host='0.0.0.0', port=5000, debug=True)
+    # mqr.add_food(connection, cursor, 'asfds', 'my food', 'category')

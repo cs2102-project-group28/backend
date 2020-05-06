@@ -135,7 +135,7 @@ def set_deliver_complete_time(connection, cursor, username, oid):
                  (now, oid, username))
 
 
-def add_schedule_part_time(connection, cursor, username, sid):
+def add_schedule_part_time(username, sid):
     insert_format = 'insert into WeeklyWorks (uid, sid) values {}'\
         .format(','
                 .join(['((select uid from users where username = %s), %s)'] * len(sid)))
@@ -150,11 +150,6 @@ def delete_schedule_part_time(connection, cursor, username, sid):
     update_query(connection, cursor,
                  'delete from WeeklyWorks '
                  'where uid = (select uid from users where username = %s) and sid in %s;', (username, sid))
-    print(select_query(cursor,
-                       'select SUM(EXTRACT(HOUR FROM s.endTime) - EXTRACT(HOUR FROM s.startTime)) '
-                       'from weeklyworks join schedules s using(sid) where uid = 81;'))
-    print(select_query(cursor,
-                       'select sid from weeklyworks where uid = 81;'))
 
 
 def add_schedule_full_time(connection, cursor, username, startday, endday, shift):

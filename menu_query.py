@@ -308,3 +308,40 @@ def get_recent_location(cursor, username):
                              'order by startTime desc '
                              'limit 5;')
     return locations
+
+
+def add_food(connection, cursor, username, fName, fCategory):
+    update_query(connection, cursor,
+                 'insert into FoodItems (fid, fName, fCategory) '
+                 'values ((select count(*) from FoodItems) + 1, %s, %s);', ((fName,), (fCategory,)))
+
+
+def update_menu(connection, cursor, username, min_spent, avai, day_limit, no_orders, price, fid):
+    rid = select_query(cursor,
+                       'select rid from manages join users using(uid) '
+                       'where username = %s', (username,))[0][0]
+    if min_spent is not None:
+        update_query(connection, cursor,
+                     'update restaurants '
+                     'set minSpent = %s '
+                     'where rid = %s;', (float(min_spent), rid))
+    if avai is not None:
+        update_query(connection, cursor,
+                     'update menu '
+                     'set availability = %s '
+                     'where rid = %s and fid = %s;', ((avai,), rid, fid))
+    if day_limit is not None:
+        update_query(connection, cursor,
+                     'update menu '
+                     'set dayLimit = %s '
+                     'where rid = %s and fid = %s;', (int(day_limit), rid, fid))
+    if no_orders is not None:
+        update_query(connection, cursor,
+                     'update menu '
+                     'set noOfOrders = %s '
+                     'where rid = %s and fid = %s;', (int(no_orders), rid, fid))
+    if price is not None:
+        update_query(connection, cursor,
+                     'update menu '
+                     'set price = %s '
+                     'where rid = %s and fid = %s;', (float(price), rid, fid))
