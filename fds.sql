@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS PartTimeRiders CASCADE;
 DROP TABLE IF EXISTS FullTimeRiders CASCADE;
 DROP TABLE IF EXISTS WeeklyWorks CASCADE;
 DROP TABLE IF EXISTS MonthlyWorks CASCADE;
+DROP TABLE IF EXISTS Contains CASCADE;
 
 
 CREATE TABLE Users (
@@ -102,7 +103,7 @@ CREATE TABLE Orders (
 	review				TEXT,
 	orderTime			TIMESTAMP NOT NULL,
 	rid 				INTEGER REFERENCES Restaurants (rid),
-	fid					INTEGER REFERENCES FoodItems (fid),
+	/*fid					INTEGER REFERENCES FoodItems (fid),*/
 	cid 				INTEGER REFERENCES Customers (uid),
 	PRIMARY KEY (oid)
 );
@@ -194,6 +195,15 @@ CREATE TABLE MonthlyWorks (
 	PRIMARY KEY (uid, sid),
 	FOREIGN KEY (uid) REFERENCES FullTimeRiders,
 	FOREIGN KEY (sid) REFERENCES Schedules
+);
+
+CREATE TABLE Contains (
+	oid   				INTEGER,
+	fid 				INTEGER,
+	quantity			INTEGER,
+	PRIMARY KEY (oid,fid),
+	FOREIGN KEY (oid) REFERENCES Orders,
+	FOREIGN KEY (fid) REFERENCES FoodItems
 );
 
 insert into Users (uid, username, password, phone) values (1, 'pwheatcroft0', 'vhvxjCY', 56953625);
@@ -719,27 +729,41 @@ insert into Manages (uid, rid) values (78, 5);
 insert into Manages (uid, rid) values (79, 5);
 insert into Manages (uid, rid) values (80, 5);
 
-insert into Orders (oid, review, orderTime, rid, fid, cid) values (1, 'Good food', '2020-01-06 10:01:02', 1, 4, 1);
-insert into Orders (oid, review, orderTime, rid, fid, cid) values (2, 'Could have been better', '2020-01-07 12:00:00', 1, 1, 1);
-insert into Orders (oid, review, orderTime, rid, fid, cid) values (3, NULL, '2020-01-07 14:12:34', 4, 16, 2);
-insert into Orders (oid, review, orderTime, rid, fid, cid) values (4, NULL, '2020-01-07 15:59:00', 1, 4, 3);
-insert into Orders (oid, review, orderTime, rid, fid, cid) values (5, NULL, '2020-01-08 16:13:17', 1, 4, 3);
-insert into Orders (oid, review, orderTime, rid, fid, cid) values (6, 'Too salty', '2020-01-10 11:19:02', 5, 16, 4);
-insert into Orders (oid, review, orderTime, rid, fid, cid) values (7, NULL, '2020-01-10 13:11:53', 5, 17, 5);
-insert into Orders (oid, review, orderTime, rid, fid, cid) values (8, NULL, '2020-01-10 17:51:49', 2, 6, 6);
-insert into Orders (oid, review, orderTime, rid, fid, cid) values (9, 'Love it!', '2020-01-12 20:12:24', 2, 8, 7);
-insert into Orders (oid, review, orderTime, rid, fid, cid) values (10, 'Too dry', '2020-01-12 21:30:51', 3, 12, 8);
+insert into Orders (oid, review, orderTime, rid, cid) values (1, 'Good food', '2020-01-06 10:01:02', 1, 1);
+insert into Orders (oid, review, orderTime, rid, cid) values (2, 'Could have been better', '2020-01-07 12:00:00', 1, 1);
+insert into Orders (oid, review, orderTime, rid, cid) values (3, NULL, '2020-01-07 14:12:34', 4, 2);
+insert into Orders (oid, review, orderTime, rid, cid) values (4, NULL, '2020-01-07 15:59:00', 1, 3);
+insert into Orders (oid, review, orderTime, rid, cid) values (5, NULL, '2020-01-08 16:13:17', 1, 3);
+insert into Orders (oid, review, orderTime, rid, cid) values (6, 'Too salty', '2020-01-10 11:19:02', 5, 4);
+insert into Orders (oid, review, orderTime, rid, cid) values (7, NULL, '2020-01-10 13:11:53', 5, 5);
+insert into Orders (oid, review, orderTime, rid, cid) values (8, NULL, '2020-01-10 17:51:49', 2, 6);
+insert into Orders (oid, review, orderTime, rid, cid) values (9, 'Love it!', '2020-01-12 20:12:24', 2, 7);
+insert into Orders (oid, review, orderTime, rid, cid) values (10, 'Too dry', '2020-01-12 21:30:51', 3, 8);
 
-insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (81, 1, '2020-01-06 10:01:30', '2020-01-06 10:18:32', '2020-01-06 10:23:49', 27, 'PGPR NUS Block 2', 4);
-insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (81, 2, '2020-01-07 12:00:17', '2020-01-07 12:11:53', '2020-01-07 12:20:17', 20, 'PGPR NUS Block 2', NULL);
-insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (92, 3, '2020-01-07 14:12:54', '2020-01-07 14:30:11', '2020-01-07 14:37:50', 10, 'Clementi MRT', 5);
+insert into Contains (oid, fid, quantity) values (1, 1, 1);
+insert into Contains (oid, fid, quantity) values (1, 2, 1);
+insert into Contains (oid, fid, quantity) values (1, 18, 2);
+insert into Contains (oid, fid, quantity) values (2, 4, 1);
+insert into Contains (oid, fid, quantity) values (3, 16, 2);
+insert into Contains (oid, fid, quantity) values (3, 19, 2);
+insert into Contains (oid, fid, quantity) values (4, 4, 1);
+insert into Contains (oid, fid, quantity) values (5, 4, 1);
+insert into Contains (oid, fid, quantity) values (6, 17, 1);
+insert into Contains (oid, fid, quantity) values (7, 16, 2);
+insert into Contains (oid, fid, quantity) values (8, 6, 1);
+insert into Contains (oid, fid, quantity) values (9, 7, 1);
+insert into Contains (oid, fid, quantity) values (10, 14, 1);
+
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (81, 1, '2020-01-06 10:01:30', '2020-01-06 10:18:32', '2020-01-06 10:23:49', 40, 'PGPR NUS Block 2', 4);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (81, 2, '2020-01-07 12:00:17', '2020-01-07 12:11:53', '2020-01-07 12:20:17', 30, 'PGPR NUS Block 2', NULL);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (92, 3, '2020-01-07 14:12:54', '2020-01-07 14:30:11', '2020-01-07 14:37:50', 26, 'Clementi MRT', 5);
 insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (93, 4, '2020-01-07 15:59:14', '2020-01-07 16:18:45', '2020-01-07 16:30:12', 24, 'Kent Ridge Hall', 5);
 insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (92, 5, '2020-01-08 16:13:32', '2020-01-08 16:40:43', '2020-01-08 17:01:30', 24, 'Kent Ridge Hall', 4);
-insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (91, 6, '2020-01-10 11:19:25', '2020-01-10 11:31:26', '2020-01-10 11:42:58', 9, 'RVRC Block B', NULL);
-insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (82, 7, '2020-01-10 13:12:09', '2020-01-10 13:30:00', '2020-01-10 13:36:54', 8, 'PGPR NUS Block 28', NULL);
-insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (91, 8, '2020-01-10 17:52:00', '2020-01-10 18:08:29', '2020-01-10 18:18:18', 38.5, 'Yusof Ishak House', 3);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (91, 6, '2020-01-10 11:19:25', '2020-01-10 11:31:26', '2020-01-10 11:42:58', 8, 'RVRC Block B', NULL);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (82, 7, '2020-01-10 13:12:09', '2020-01-10 13:30:00', '2020-01-10 13:36:54', 24, 'PGPR NUS Block 28', NULL);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (91, 8, '2020-01-10 17:52:00', '2020-01-10 18:08:29', '2020-01-10 18:18:18', 40, 'Yusof Ishak House', 3);
 insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (83, 9, '2020-01-12 20:12:39', '2020-01-12 20:18:57', '2020-01-12 20:28:03', 10, 'University Town', 4);
-insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (83, 10, '2020-01-12 21:31:10', '2020-01-12 21:50:23', '2020-01-12 21:58:20', 14.5, 'Raffles Hall', 5);
+insert into Delivers (uid, oid, startTime, departTime, completeTime, deliverCost, location, rating) values (83, 10, '2020-01-12 21:31:10', '2020-01-12 21:50:23', '2020-01-12 21:58:20', 15, 'Raffles Hall', 5);
 
 CREATE OR REPLACE FUNCTION check_hours_constraint () RETURNS TRIGGER AS $$ 
 DECLARE
