@@ -777,3 +777,17 @@ CREATE TRIGGER hours_trigger
 	ON WeeklyWorks
 	FOR EACH ROW EXECUTE FUNCTION check_hours_constraint () ;
 
+
+CREATE OR REPLACE FUNCTION menu_availability_constraint() RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.noOfOrders = NEW.dayLimit THEN
+        NEW."availability" := FALSE;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS availability_trigger on Menu;
+CREATE TRIGGER availability_trigger
+    BEFORE UPDATE OF noOfOrders ON Menu
+    FOR EACH ROW EXECUTE FUNCTION menu_availability_constraint () ;
