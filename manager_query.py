@@ -10,9 +10,10 @@ def month_summary(cursor, month, year):
                                 'and extract(year from registerDate) = %s;',
                                 (month, year))[0][0]
     all_order = select_query(cursor,
-                             'select count(*), sum(price), sum(deliverCost) '
-                             'from orders join menu using(rid, fid) '
+                             'select count(distinct oid), sum(price*quantity), sum(deliverCost) '
+                             'from orders join menu using(rid) '
                              'join delivers using(oid) '
+                             'join contains using(oid) '
                              'where (select extract(month from orderTime)) = %s '
                              'and (select extract(year from orderTime)) = %s;',
                              (month, year))[0]
@@ -24,9 +25,10 @@ def month_summary(cursor, month, year):
                                        (month, year))
     user_ids = tuple([item[0] for item in user_order_in_month])
     user_summary = select_query(cursor,
-                                'select cid, count(*), sum(price), sum(deliverCost) '
-                                'from orders join menu using(rid, fid) '
+                                'select cid, count(distinct oid), sum(price*quantity), sum(deliverCost) '
+                                'from orders join menu using(rid) '
                                 'join delivers using(oid) '
+                                'join contains using(oid) '
                                 'where (select extract(month from orderTime)) = %s '
                                 'and (select extract(year from orderTime)) = %s '
                                 'group by (cid) '
@@ -52,6 +54,7 @@ def order_summary(cursor, area, day, starttime, endtime):
     data = select_query(cursor,
                         'select oid, orderTime, rName, fName, cid '
                         'from orders o join delivers d using(oid) '
+                        'join contains using(oid) '
                         'join restaurants using(rid) '
                         'join foodItems using(fid) '
                         'where d.location = %s '
