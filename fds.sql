@@ -805,7 +805,6 @@ DROP TRIGGER IF EXISTS hours_trigger ON WeeklyWorks;
 CREATE TRIGGER hours_trigger
 	BEFORE INSERT OR DELETE
 	ON WeeklyWorks
-	DEFERRABLE INITIALLY DEFERRED
 	FOR EACH ROW EXECUTE FUNCTION check_hours_constraint () ;
 
 
