@@ -111,7 +111,7 @@ def register(connection, cursor, username, password, phone, user_type, rider_typ
     if user_type == 'staff':
         update_query(connection, cursor,
                      'insert into Staffs (uid) values ((select count(*) from Users));')
-    if username == 'manager':
+    if user_type == 'manager':
         update_query(connection, cursor,
                      'insert into Managers (uid) values ((select count(*) from Users));')
 
