@@ -51,6 +51,20 @@
     }
     ```
     + return code: 200 for OK and 400 for fail
+    
+#### View profile
+- `/<username>/profile`
+    * return user data which is stored as a dictionary which includes of `username`, `phone`, `userType`, `rewardPoints`
+    This is what should be returned to user:
+    
+    ```
+    'data' {
+        'username': <username>
+        'phone': <phone number contains exactly 8 digits>
+        'userType': <customer, rider, staff, manager>
+        'rewardPoints': <a positive integer>
+    }
+    ```
  
 ### Customer function
 #### View restaurants and food
@@ -251,6 +265,30 @@
           },
     }
     ```
+#### Create new promotion
+- `manager/<username>/create/promotion`
+   * Data should be parsed:
+   ```
+   new_promotion {
+        `restaurant`: <name of restaurant>
+        `foodItem`: <name of the food>
+        `endDate`: <end date of the promotion>
+        `startDate`: <start date of the promotion>
+        `promotion_type`: <flat or percentage>
+        `percent`: <percent of discount for percentage promotion's type>
+        `maxAmount`
+        `flatAmount`: <amount dicount for flat promotion's type>
+        `minAmount` 
+   }
+   ```
+   Return 200 if OK, 400 if there is error
+   
+- `manager/<username>/delete/promotion/<pid>`
+    
+    Pass the `pid` of the promotion needs to be deleted
+    
+    Return 200 if OK, 400 if there is an error 
+
 ### Rider
 #### Summary
 - `/rider/<username>/summary/<month>/<year>`

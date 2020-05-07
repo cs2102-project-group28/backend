@@ -142,3 +142,4 @@ def customer_update(connection, cursor, username, card_number=None, cvv=None):
         update_query(connection, cursor,
                      'update customers set creditCardNumber = %s, cvv = %s where uid = %s;',
                      (card_number, cvv, uid))
+
