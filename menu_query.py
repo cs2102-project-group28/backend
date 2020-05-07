@@ -54,10 +54,15 @@ def get_food(cursor, string):
 
 
 def get_restaurant(cursor, restaurant):
-    all_restaurants = select_query(cursor,
-                                   """select rName, location from Restaurants 
-                                   where lower(rName) like '%%' || %s || '%%';""",
-                                   (restaurant,))
+    if restaurant is None:
+        all_restaurants = select_query(cursor,
+                                       "select rName, location from Restaurants;",
+                                       (restaurant,))
+    else:
+        all_restaurants = select_query(cursor,
+                                       """select rName, location from Restaurants 
+                                       where lower(rName) like '%%' || %s || '%%';""",
+                                       (restaurant,))
     return [
         {
             'rName': item[0],

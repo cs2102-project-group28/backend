@@ -162,10 +162,12 @@ def recent_locations(username):
         return Response(response=json.dumps({"data": locations}), status=200)
 
 
-@app.route('/customer/<username>/search-restaurant/<restaurant>', methods=['POST'])
-def search_restaurants(username, restaurant):
+@app.route('/customer/<username>/search-restaurant/restaurant', methods=['POST'])
+def search_restaurants(username):
     if request.method == 'POST':
-        restaurant = str.lower(restaurant)
+        restaurant = request.args.get('rName')
+        if restaurant is not None:
+            restaurant = str.lower(restaurant)
         return Response(response=json.dumps({'data': mqr.get_restaurant(cursor, restaurant)}), status=200)
 
 
