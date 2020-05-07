@@ -90,8 +90,7 @@ def update(connection, cursor, username, password=None, phone=None):
 
 
 def register(connection, cursor, username, password, phone, user_type, rider_type):
-    uid = select_query(cursor,
-                       'select count(*) from users + 1')[0][0]
+    uid = select_query(cursor, 'select count(*) from users;')[0][0] + 1
     update_query(connection, cursor,
                  'insert into Users (uid, username, password, phone) values '
                  '(%s, %s, %s, %s);', (uid, username, password, (phone,)))
@@ -122,7 +121,6 @@ def verify_customer(cursor, username, creditcard, cvv):
                                                      'select creditCardNumber, cvv from '
                                                      'customers join users using(uid) '
                                                      'where username = %s;', (username,))[0]
-    print(creditcard != verified_creditcard or cvv != verified_cvv)
     if creditcard != verified_creditcard or cvv != verified_cvv:
         raise Exception
 
