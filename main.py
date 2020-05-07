@@ -192,7 +192,7 @@ def create_promotion(username):
         max_amount = new_promotion['maxAmount']
         flat_amount = new_promotion['flatAmount']
         min_amount = new_promotion['minAmount']
-        pqr.create_promotion(restaurant, food_item, end_date, start_date, promotion_type, percent, max_amount
+        pqr.create_promotion(connection, cursor, restaurant, food_item, end_date, start_date, promotion_type, percent, max_amount
                              , flat_amount, min_amount)
         return Response(status=200)
 
