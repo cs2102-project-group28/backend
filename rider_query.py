@@ -1,6 +1,7 @@
 import time
+from datetime import datetime
 
-from database import select_query
+from database import select_query, update_query, transaction
 
 
 def summary(cursor, username, month, year):
@@ -112,3 +113,60 @@ def summary(cursor, username, month, year):
             'average deliver time':
                 str(time.strftime('%H:%M:%S', time.gmtime(round((data[6] / data[3]).total_seconds()))))
         }
+
+
+def set_deliver_depart_time(connection, cursor, username, oid):
+    now = datetime.now()
+    update_query(connection, cursor,
+                 'update delivers '
+                 'set departTime = %s '
+                 'where oid = %s and uid = ('
+                 'select uid from users where username = %s);',
+                 (now, oid, username))
+
+
+def set_deliver_complete_time(connection, cursor, username, oid):
+    now = datetime.now()
+    update_query(connection, cursor,
+                 'update delivers '
+                 'set completeTime = %s '
+                 'where oid = %s and uid = ('
+                 'select uid from users where username = %s);',
+                 (now, oid, username))
+
+
+def add_schedule_part_time(username, sid):
+    insert_format = 'insert into WeeklyWorks (uid, sid) values {}'\
+        .format(','
+                .join(['((select uid from users where username = %s), %s)'] * len(sid)))
+    arr = []
+    for item in sid:
+        arr += [username, int(item)]
+    transaction(insert_format, tuple(arr))
+
+
+def delete_schedule_part_time(connection, cursor, username, sid):
+    sid = tuple([int(item) for item in sid])
+    update_query(connection, cursor,
+                 'delete from WeeklyWorks '
+                 'where uid = (select uid from users where username = %s) and sid in %s;', (username, sid))
+
+
+def add_schedule_full_time(connection, cursor, username, startday, endday, shift):
+    day = []
+    if startday < endday:
+        for i in range(startday, endday + 1):
+            day.append(i)
+    else:
+        for i in range(startday, 8):
+            day.append(i)
+        for i in range(1, endday + 1):
+            day.append(i)
+    for i in range(len(day)):
+        sid_morning = (day[i] - 1) * 8 + shift
+        sid_afternoon = (day[i] - 1) * 8 + shift + 4
+        update_query(connection, cursor,
+                     'insert into MonthlyWorks (uid, sid) '
+                     'values '
+                     '((select uid from users where username = %s), %s), '
+                     '((select uid from users where username = %s), %s);', (username, sid_morning, username, sid_afternoon))

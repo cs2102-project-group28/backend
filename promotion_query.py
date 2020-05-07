@@ -1,4 +1,5 @@
 from database import select_query, update_query
+from datetime import date
 
 
 def get_flat(cursor, uid, startdate, enddate):
@@ -170,10 +171,59 @@ def create_promotion(connection, cursor, restaurant, foodItem, endDate, startDat
 def delete_promotion(connection, cursor, pid):
     percent_query = select_query(cursor, 'select 1 from Promotions join Percentage using(pid) where pid = %s;', (pid,))
     if len(percent_query) != 0:
-        update_query(connection, cursor, 'delete from Percentage where pid = %s;', pid)
+        update_query(connection, cursor, 'delete from Percentage where pid = %s;', (pid,))
     flat_query = select_query(cursor, 'select 1 from Promotions join Flat using(pid) where pid = %s;', (pid,))
     if len(flat_query) != 0:
-        update_query(connection, cursor, 'delete from Flat where pid = %s;', pid)
+        update_query(connection, cursor, 'delete from Flat where pid = %s;', (pid,))
     update_query(connection, cursor, 'delete from Promotes where pid = %s;', (pid,))
     update_query(connection, cursor, 'delete from Promotions where pid = %s;', (pid,))
 
+
+def view_promotion(cursor):
+    today = date.today()
+    flat = select_query(cursor,
+                        'select pid, startDate, endDate, flatAmount, minAmount, rid, fid, rName, fName '
+                        'from promotions join flat using(pid) '
+                        'join promotes using(pid) '
+                        'join restaurants using(rid) '
+                        'join FoodItems using(fid) '
+                        'where startDate <= %s and endDate >= %s;', (today, today))
+    update_flat = [
+        {
+            'type': 'flat',
+            'pid': item[0],
+            'startDate': item[1],
+            'endDate': item[2],
+            'flatAmount': item[3],
+            'minAmount': item[4],
+            'rid': item[5],
+            'fid': item[6],
+            'rName': item[7],
+            'fName': item[8]
+        }
+        for item in flat
+    ]
+
+    percentage = select_query(cursor,
+                              'select pid, startDate, endDate, percent, maxAmount, rid, fid, rName, fName '
+                              'from promotions join percentage using(pid) '
+                              'join promotes using(pid) '
+                              'join restaurants using(rid) '
+                              'join FoodItems using(fid) '
+                              'where startDate <= %s and endDate >= %s;', (today, today))
+    update_percentage = [
+        {
+            'type': 'percentage',
+            'pid': item[0],
+            'startDate': item[1],
+            'endDate': item[2],
+            'percent': item[3],
+            'maxAmount': item[4],
+            'rid': item[5],
+            'fid': item[6],
+            'rName': item[7],
+            'fName': item[8]
+        }
+        for item in percentage
+    ]
+    return update_flat + update_percentage

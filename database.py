@@ -26,3 +26,16 @@ def select_query(cursor, string, param=None):
 def update_query(connection, cursor, string, param=None):
     cursor.execute(string, param)
     connection.commit()
+
+
+def transaction(string, param=None):
+    connection = psycopg2.connect(user="postgres",
+                                  password=password,
+                                  host="localhost",
+                                  port="5432",
+                                  database="project")
+    cursor = connection.cursor()
+    with connection:
+        with cursor:
+            cursor.execute(string, param)
+
