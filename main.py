@@ -152,7 +152,7 @@ def create_promotion(username):
         return Response(status=200)
 
 
-@app.route('manager/<username>/delete/promotion', methods=['POST'])
+@app.route('/manager/<username>/delete/promotion', methods=['POST'])
 def delete_promotion(username):
     if request.method == 'POST':
         promotion = request.json
