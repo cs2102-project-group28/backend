@@ -190,8 +190,9 @@ def view_monthly_order(cursor, username, month, year):
                        'select uid from users where username = %s;',
                        (username,))[0][0]
     all_order = select_query(cursor,
-                             'select count(*), sum(price), rName, location '
-                             'from orders join menu using(rid, fid) '
+                             'select count(distinct oid), sum(price), rName, location '
+                             'from orders join contains using(oid) '
+                             'join menu using(rid, fid) '
                              'join manages using(rid) '
                              'join restaurants using(rid) '
                              'where (select extract(month from orderTime)) = %s '
@@ -200,16 +201,17 @@ def view_monthly_order(cursor, username, month, year):
                              'having uid = %s;',
                              (month, year, uid))[0]
     top_5 = select_query(cursor,
-                         'select fName, cid, orderTime '
-                         'from orders join menu using(rid, fid) '
+                         'select fName, count(*) '
+                         'from orders join contains using(oid) '
+                         'join menu using(rid, fid) '
                          'join restaurants using(rid) '
                          'join foodItems using(fid) '
                          'join manages using(rid) '
-                         'group by (fName, cid, uid, orderTime) '
-                         'having (select extract(month from orderTime)) = %s '
+                         'where (select extract(month from orderTime)) = %s '
                          'and (select extract(year from orderTime)) = %s '
                          'and uid = %s '
-                         'order by sum(noOfOrders) desc '
+                         'group by (fName) '
+                         'order by count(*) desc '
                          'limit 5;',
                          (month, year, uid))
     return {
@@ -220,8 +222,7 @@ def view_monthly_order(cursor, username, month, year):
         'favorite food': [
             {
                 'fName': item[0],
-                'cid': item[1],
-                'order time': item[2]
+                'times': item[1]
             } for item in top_5
         ]
     }
@@ -232,24 +233,27 @@ def view_past_order(cursor, username, startdate, enddate):
                        'select uid from users where username = %s', (username,))[0][0]
     if startdate is None and enddate is None:
         order = select_query(cursor,
-                             'select orderTime, rName, fName, price '
+                             'select orderTime, rName, fName, price, review '
                              'from users join orders on uid = cid '
+                             'join contains using(oid) '
                              'join restaurants using(rid) '
                              'join foodItems using(fid) '
                              'join menu using(rid, fid) '
-                             'where uid = %s', uid)
+                             'where uid = %s', (uid,))
     elif startdate is None:
         order = select_query(cursor,
-                             'select orderTime, rName, fName, price '
+                             'select orderTime, rName, fName, price, review '
                              'from users join orders on uid = cid '
+                             'join contains using(oid) '
                              'join restaurants using(rid) '
                              'join foodItems using(fid) '
                              'join menu using(rid, fid) '
                              'where uid = %s and date(orderTime) <= %s', (uid, enddate))
     elif enddate is None:
         order = select_query(cursor,
-                             'select orderTime, rName, fName, price '
+                             'select orderTime, rName, fName, price, review '
                              'from users join orders on uid = cid '
+                             'join contains using(oid) '
                              'join restaurants using(rid) '
                              'join foodItems using(fid) '
                              'join menu using(rid, fid) '
@@ -258,6 +262,7 @@ def view_past_order(cursor, username, startdate, enddate):
         order = select_query(cursor,
                              'select orderTime, rName, fName, price, review '
                              'from users join orders on uid = cid '
+                             'join contains using(oid) '
                              'join restaurants using(rid) '
                              'join foodItems using(fid) '
                              'join menu using(rid, fid) '
