@@ -50,26 +50,26 @@ def login(cursor, username, password):
 
 def get_profile(cursor, username, phone, user_type, reward_points):
     if len(phone) == 0:
-        phone = select_query(cursor, 'select phone from users where username = %s', username)
+        phone = select_query(cursor, 'select phone from users where username = %s', (username,))[0][0]
     customer_query = select_query(cursor, 'select username from customers join users using(uid) where username = %s',
-                                  username)
+                                  (username,))
     if len(customer_query) != 0:
         user_type = 'customer'
     rider_query = select_query(cursor, 'select username from riders join users using(uid) where username = %s',
-                               username)
+                               (username,))
     if len(rider_query) != 0:
         user_type = 'rider'
     staff_query = select_query(cursor, 'select username from staffs join users using(uid) where username = %s',
-                               username)
+                               (username,))
     if len(staff_query) != 0:
         user_type = 'staff'
     manager_query = select_query(cursor, 'select username from managers join users using(uid) where username = %s',
-                                 username)
+                                 (username,))
     if len(manager_query) != 0:
         user_type = 'manager'
     if user_type == 'customer' and len(reward_points) == 0:
         reward_points = select_query(cursor, 'select rewardPoints from customers join users using(uid) '
-                                             'where username = %s', username)
+                                             'where username = %s', (username,))
         return {'userName': username, 'phone': phone, 'userType': user_type, 'rewardPoints': reward_points}
     return {'userName': username, 'phone': phone, 'userType': user_type}
 
@@ -91,7 +91,7 @@ def update(connection, cursor, username, password=None, phone=None):
 
 def register(connection, cursor, username, password, phone, user_type, rider_type):
     uid = select_query(cursor,
-                       'select count(*) from users + 1')[0][0]
+                       'select count(*) from users')[0][0] + 1
     update_query(connection, cursor,
                  'insert into Users (uid, username, password, phone) values '
                  '(%s, %s, %s, %s);', (uid, username, password, (phone,)))

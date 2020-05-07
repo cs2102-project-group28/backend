@@ -59,7 +59,7 @@ def update(username):
 def view_profile(username):
     if request.method == 'POST':
         user = request.json
-        phone = int(user['phone'])
+        phone = user['phone']
         user_type = user['userType']
         reward_points = int(user['rewardPoints'])
         return Response(response=json.dumps({'data': uqr.get_profile(cursor, username, phone, user_type, reward_points)}),
