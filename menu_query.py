@@ -37,6 +37,7 @@ def get_menu(cursor, rName, rCategory, location, fName, fCategory):
             'location': item[4],
             'minSpent': item[5],
             'availability': item[6],
+            'limit': item[7],
             'noOfOrders': item[8],
             'price': item[9],
             'fName': item[10],
